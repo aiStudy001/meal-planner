@@ -84,3 +84,4 @@ logs
 *.log
 /.playwright-mcp
 /meal-planner-data
+*.pem
