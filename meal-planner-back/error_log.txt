@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "C:\Users\lenovo\Documents\code\jetbrain\meal-planner\meal-planner-back\run_example.py", line 151, in <module>
+    print("\u26a0\ufe0f  경고: MOCK_MODE가 활성화되지 않았습니다.")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'cp949' codec can't encode character '\u26a0' in position 0: illegal multibyte sequence

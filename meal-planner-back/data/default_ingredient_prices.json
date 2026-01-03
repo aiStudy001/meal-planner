@@ -1,0 +1,94 @@
+{
+  "닭가슴살": {
+    "price_per_gram": 0.035,
+    "note": "100g당 3,500원 기준"
+  },
+  "계란": {
+    "price_per_gram": 0.25,
+    "note": "개당 250원 (1개=약 60g 기준으로 환산)"
+  },
+  "밥": {
+    "price_per_gram": 0.005,
+    "note": "210g 기준 1,000원"
+  },
+  "양상추": {
+    "price_per_gram": 0.02,
+    "note": "100g당 2,000원"
+  },
+  "방울토마토": {
+    "price_per_gram": 0.03,
+    "note": "100g당 3,000원"
+  },
+  "올리브유": {
+    "price_per_gram": 0.05,
+    "note": "10ml=10g 기준 500원"
+  },
+  "햄": {
+    "price_per_gram": 0.04,
+    "note": "100g당 4,000원"
+  },
+  "야채": {
+    "price_per_gram": 0.015,
+    "note": "평균 100g당 1,500원"
+  },
+  "김치": {
+    "price_per_gram": 0.01,
+    "note": "100g당 1,000원"
+  },
+  "참기름": {
+    "price_per_gram": 0.1,
+    "note": "5ml=5g 기준 500원"
+  },
+  "쌀": {
+    "price_per_gram": 0.005,
+    "note": "1kg 5,000원 기준"
+  },
+  "돼지고기": {
+    "price_per_gram": 0.05,
+    "note": "100g당 5,000원"
+  },
+  "소고기": {
+    "price_per_gram": 0.15,
+    "note": "100g당 15,000원"
+  },
+  "고등어": {
+    "price_per_gram": 0.02,
+    "note": "100g당 2,000원"
+  },
+  "두부": {
+    "price_per_gram": 0.01,
+    "note": "300g 3,000원 기준"
+  },
+  "감자": {
+    "price_per_gram": 0.004,
+    "note": "100g당 400원"
+  },
+  "당근": {
+    "price_per_gram": 0.006,
+    "note": "100g당 600원"
+  },
+  "양파": {
+    "price_per_gram": 0.003,
+    "note": "100g당 300원"
+  },
+  "마늘": {
+    "price_per_gram": 0.02,
+    "note": "100g당 2,000원"
+  },
+  "대파": {
+    "price_per_gram": 0.015,
+    "note": "100g당 1,500원"
+  },
+  "고추": {
+    "price_per_gram": 0.03,
+    "note": "100g당 3,000원"
+  },
+  "버섯": {
+    "price_per_gram": 0.025,
+    "note": "100g당 2,500원"
+  },
+  "우유": {
+    "price_per_gram": 0.003,
+    "note": "1L 3,000원 기준 (1ml=1g)"
+  }
+}

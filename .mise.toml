@@ -1,0 +1,39 @@
+# mise 런타임 버전 관리
+# https://mise.jdx.dev/
+
+[tools]
+python = "3.13"
+node = "24.12.0"
+
+# 환경 변수
+[env]
+# Python 관련
+PYTHONUNBUFFERED = "1"
+PYTHONDONTWRITEBYTECODE = "1"
+
+# 프로젝트 태스크 정의
+[tasks.install-backend]
+description = "Install backend dependencies"
+dir = "meal-planner-back"
+run = "pip install -r requirements.txt"
+
+[tasks.install-frontend]
+description = "Install frontend dependencies (if package.json exists)"
+dir = "meal-planner-front"
+run = "npm install"
+
+[tasks.test-backend]
+description = "Run backend tests"
+dir = "meal-planner-back"
+run = "pytest tests/ -v"
+
+[tasks.run-example]
+description = "Run backend example (Mock mode)"
+dir = "meal-planner-back"
+run = "python run_example.py"
+env = { MOCK_MODE = "true" }
+
+[tasks.dev-backend]
+description = "Run backend in development mode"
+dir = "meal-planner-back"
+run = "uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"

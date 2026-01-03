@@ -1,0 +1,119 @@
+# Meal Planner Agent Graph (Mermaid)
+
+This file contains the Mermaid diagram source code for the agent graph.
+It will render automatically on GitHub.
+
+```mermaid
+---
+config:
+  flowchart:
+    curve: linear
+---
+graph TD;
+	START([START])
+	nutrition_calculator[Nutrition Calculator]
+	meal_planning_supervisor{Meal Planning<br/>Supervisor}
+	nutritionist[Nutritionist<br/>Expert]
+	chef[Chef<br/>Expert]
+	budget[Budget<br/>Expert]
+	conflict_resolver[Conflict<br/>Resolver]
+	validation_supervisor{Validation<br/>Supervisor}
+	nutrition_checker[Nutrition<br/>Checker]
+	allergy_checker[Allergy<br/>Checker]
+	time_checker[Time<br/>Checker]
+	health_checker[Health<br/>Checker]
+	budget_checker[Budget<br/>Checker]
+	validation_aggregator[Validation<br/>Aggregator]
+	decision{Decision<br/>Maker}
+	retry_router[Retry<br/>Router]
+	day_iterator[Day<br/>Iterator]
+	END([END])
+
+	%% Main flow
+	START --> nutrition_calculator
+	nutrition_calculator --> meal_planning_supervisor
+
+	%% Meal planning parallel execution (Send API)
+	meal_planning_supervisor -.Send API.-> nutritionist
+	meal_planning_supervisor -.Send API.-> chef
+	meal_planning_supervisor -.Send API.-> budget
+	
+	%% Experts converge to resolver
+	nutritionist --> conflict_resolver
+	chef --> conflict_resolver
+	budget --> conflict_resolver
+	
+	%% Validation pipeline
+	conflict_resolver --> validation_supervisor
+	
+	%% Validation parallel execution (Send API)
+	validation_supervisor -.Send API.-> nutrition_checker
+	validation_supervisor -.Send API.-> allergy_checker
+	validation_supervisor -.Send API.-> time_checker
+	validation_supervisor -.Send API.-> health_checker
+	validation_supervisor -.Send API.-> budget_checker
+	
+	%% Validators converge to aggregator
+	nutrition_checker --> validation_aggregator
+	allergy_checker --> validation_aggregator
+	time_checker --> validation_aggregator
+	health_checker --> validation_aggregator
+	budget_checker --> validation_aggregator
+	
+	%% Conditional routing
+	validation_aggregator --> decision
+	decision -->|All Pass| day_iterator
+	decision -->|Some Failed| retry_router
+	
+	%% Retry loop (Command API)
+	retry_router -.Command API.-> meal_planning_supervisor
+	
+	%% Day progression
+	day_iterator -->|Next Meal/Day| meal_planning_supervisor
+	day_iterator -->|Complete| END
+
+	%% Styling
+	classDef supervisor fill:#4A90E2,stroke:#2E5C8A,color:#fff,stroke-width:3px
+	classDef expert fill:#50C878,stroke:#2E7D4E,color:#fff,stroke-width:2px
+	classDef validator fill:#FFD700,stroke:#B8860B,color:#000,stroke-width:2px
+	classDef control fill:#FF8C42,stroke:#C4661F,color:#fff,stroke-width:2px
+	classDef default fill:#E8E8E8,stroke:#666,color:#000,stroke-width:2px
+	
+	class meal_planning_supervisor,validation_supervisor supervisor
+	class nutritionist,chef,budget expert
+	class nutrition_checker,allergy_checker,time_checker,health_checker,budget_checker validator
+	class decision,retry_router,day_iterator control
+	class nutrition_calculator,conflict_resolver,validation_aggregator default
+
+```
+
+## Legend
+
+- **Blue nodes**: Supervisor nodes (Send API for parallel execution)
+- **Green nodes**: Expert agents (LLM-powered)
+- **Yellow nodes**: Validators (rule-based)
+- **Orange nodes**: Routing/control flow
+- **Dashed edges**: Conditional routes
+
+## Node Descriptions
+
+### Supervisors
+- `meal_planning_supervisor`: Dispatches 3 expert agents in parallel
+- `validation_supervisor`: Dispatches 5 validators in parallel
+
+### Expert Agents
+- `nutritionist`: Macro-focused meal recommendations
+- `chef`: Cooking skill & time-based recommendations
+- `budget`: Cost-optimized recommendations with real pricing
+
+### Validators
+- `nutrition_checker`: Verifies calories (±20%) and macros (±30%)
+- `allergy_checker`: Checks dietary restrictions
+- `time_checker`: Validates cooking time limits
+- `health_checker`: Enforces health condition constraints
+- `budget_checker`: Ensures budget compliance (±10%)
+
+### Control Flow
+- `decision_maker`: Routes to retry or next meal
+- `retry_router`: Selectively re-runs failed experts
+- `day_iterator`: Advances to next meal or day

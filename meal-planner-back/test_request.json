@@ -1,0 +1,17 @@
+{
+  "goal": "다이어트",
+  "weight": 70,
+  "height": 170,
+  "age": 30,
+  "gender": "male",
+  "activity_level": "moderate",
+  "restrictions": [],
+  "health_conditions": [],
+  "budget": 50000,
+  "budget_type": "weekly",
+  "budget_distribution": "equal",
+  "cooking_time": "30분 이내",
+  "skill_level": "중급",
+  "meals_per_day": 3,
+  "days": 1
+}
