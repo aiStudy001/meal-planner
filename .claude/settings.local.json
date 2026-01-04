@@ -75,7 +75,9 @@
       "mcp__playwright__browser_run_code",
       "mcp__desktop-commander__start_search",
       "Bash(\".venv\\\\Scripts\\\\python.exe\" scripts/generate_graph_visualization.py)",
-      "Bash(.venvScriptspython.exe scriptsgenerate_graph_visualization.py)"
+      "Bash(.venvScriptspython.exe scriptsgenerate_graph_visualization.py)",
+      "Bash(del \"C:\\\\Users\\\\lenovo\\\\Documents\\\\code\\\\jetbrain\\\\meal-planner\\\\meal-planner-front\\\\src\\\\views\\\\ResultView.vue\")",
+      "Bash(iconv:*)"
     ]
   }
 }

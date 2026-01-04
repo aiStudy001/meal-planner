@@ -21,12 +21,6 @@ const router = createRouter({
       component: () => import('@/views/ProcessingView.vue'),
       meta: { title: '식단 생성 중' },
     },
-    {
-      path: '/result',
-      name: 'result',
-      component: () => import('@/views/ResultView.vue'),
-      meta: { title: '식단 결과' },
-    },
   ],
 })
 

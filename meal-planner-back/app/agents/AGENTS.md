@@ -46,49 +46,49 @@ app/agents
 
 ### 입력 (사용자가 전달)
 
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
+| 필드        | 타입            | 설명                                                                                                                   |
+| --------- | ------------- | -------------------------------------------------------------------------------------------------------------------- |
 | `profile` | `UserProfile` | 목표(`goal`), 체형, 활동량, 식단 기간(`days`), 끼니 수(`meals_per_day`), 예산(`budget` & `budget_type`), 조리 시간, 알레르기/선호 제한 등을 포함합니다. |
 
 ### 계산된 목표
 
-| 필드 | 타입 | 생성자 |
-| --- | --- | --- |
-| `daily_targets` | `MacroTargets` | `nutrition_calculator`가 BMR/TDEE와 목표 매크로 비율을 계산하여 채웁니다. |
-| `per_meal_targets` | `MacroTargets` | 하루 목표를 끼니 수로 나눈 값입니다. |
-| `per_meal_budget` | `int` | 예산 유형(주간/일간/끼니별)에 따라 자동 계산됩니다. |
+| 필드                 | 타입             | 생성자                                                     |
+| ------------------ | -------------- | ------------------------------------------------------- |
+| `daily_targets`    | `MacroTargets` | `nutrition_calculator`가 BMR/TDEE와 목표 매크로 비율을 계산하여 채웁니다. |
+| `per_meal_targets` | `MacroTargets` | 하루 목표를 끼니 수로 나눈 값입니다.                                   |
+| `per_meal_budget`  | `int`          | 예산 유형(주간/일간/끼니별)에 따라 자동 계산됩니다.                          |
 
 ### 진행 상황
 
-| 필드 | 설명 |
-| --- | --- |
-| `current_day` | 현재 생성 중인 날짜(1~profile.days). |
-| `current_meal_type` | `"아침"`, `"점심"` 등 현재 끼니 이름. |
-| `current_meal_index` | 하루 끼니 중 0 기반 인덱스. |
+| 필드                   | 설명                           |
+| -------------------- | ---------------------------- |
+| `current_day`        | 현재 생성 중인 날짜(1~profile.days). |
+| `current_meal_type`  | `"아침"`, `"점심"` 등 현재 끼니 이름.   |
+| `current_meal_index` | 하루 끼니 중 0 기반 인덱스.            |
 
 ### 전문가 추천 & 최종 메뉴
 
-| 필드 | 타입 | 역할 |
-| --- | --- | --- |
-| `nutritionist_recommendation`, `chef_recommendation`, `budget_recommendation` | `MealRecommendation | None` | 병렬로 실행되는 3명의 전문가 결과를 저장합니다. `budget_recommendation`에는 `ingredient_prices`(Tavily 검색 결과) 필드가 포함될 수 있습니다. 재시도 시 특정 전문가만 초기화할 수 있습니다. |
-| `current_menu` | `Menu | None` | `conflict_resolver`가 결정한 최종 메뉴. 검증/일일 기록에서 사용합니다. |
+| 필드                                                                            | 타입                  | 역할    |
+| ----------------------------------------------------------------------------- | ------------------- | ----- |
+| `nutritionist_recommendation`, `chef_recommendation`, `budget_recommendation` | `MealRecommendation | None` |
+| `current_menu`                                                                | `Menu               | None` |
 
 ### 검증 및 재시도
 
-| 필드 | 설명 |
-| --- | --- |
-| `validation_results` | `list[ValidationResult]` | 각 검증 노드가 병렬로 push하며 최대 10개까지만 유지(`limit_validation_results`). |
-| `previous_validation_failures` | `list[dict]` | 최근 실패 기록(`validator`, `issues`, `retry_count`, `menu_name`). 전문가 프롬프트 피드백에 사용됩니다. |
-| `retry_count` / `max_retries` | 현재 재시도 횟수 / 허용 횟수(기본 5). |
-| `_validation_warnings` | `list[str] | None` | 재시도 한계 도달 시 남긴 경고 메시지를 임시로 저장했다가 `day_iterator`에서 메뉴에 부착. |
+| 필드                             | 설명                       |
+| ------------------------------ | ------------------------ |
+| `validation_results`           | `list[ValidationResult]` |
+| `previous_validation_failures` | `list[dict]`             |
+| `retry_count` / `max_retries`  | 현재 재시도 횟수 / 허용 횟수(기본 5). |
+| `_validation_warnings`         | `list[str]               |
 
 ### 누적 결과 & 이벤트
 
-| 필드 | 설명 |
-| --- | --- |
-| `completed_meals` | 하루 동안 확정된 메뉴 리스트. 끼니를 모두 채우면 `DailyPlan` 생성 후 비웁니다. |
-| `weekly_plan` | 완성된 `DailyPlan` 리스트. 모든 날짜가 끝나면 최종 산출물로 반환됩니다. |
-| `events` | `[{type,node,status,data}]` 구조의 로그. SSE나 UI에서 그대로 활용하며 최대 20개까지만 유지(`limit_events`). |
+| 필드                | 설명                                                                                   |
+| ----------------- | ------------------------------------------------------------------------------------ |
+| `completed_meals` | 하루 동안 확정된 메뉴 리스트. 끼니를 모두 채우면 `DailyPlan` 생성 후 비웁니다.                                  |
+| `weekly_plan`     | 완성된 `DailyPlan` 리스트. 모든 날짜가 끝나면 최종 산출물로 반환됩니다.                                       |
+| `events`          | `[{type,node,status,data}]` 구조의 로그. SSE나 UI에서 그대로 활용하며 최대 20개까지만 유지(`limit_events`). |
 
 ---
 
@@ -151,11 +151,11 @@ validation_supervisor --(Send)--> {nutrition_checker, allergy_checker, time_chec
 
 #### 4.2.2 전문가 노드 (`nodes/meal_planning/…`)
 
-| 노드 | 주요 책임 | 입력 | 출력 |
-| --- | --- | --- | --- |
-| `nutritionist_agent` | 칼로리/매크로·질병 제약 중심 추천 | `profile`, `per_meal_targets`, `previous_validation_failures` | `nutritionist_recommendation`, `events` |
-| `chef_agent` | 조리 시간·난이도·맛 중심 추천, 필요 시 레시피 검색 | `profile`, `per_meal_targets`, `COOKING_TIME_LIMITS`, `recipe_search_service`, `previous_validation_failures` | `chef_recommendation`, `events` |
-| `budget_agent` | Tavily 가격 정보를 포함한 cost-first 추천 | `per_meal_budget`, `per_meal_targets`, `previous_validation_failures`, `chef_recommendation` | `budget_recommendation`, `events` |
+| 노드                   | 주요 책임                           | 입력                                                                                                            | 출력                                      |
+| -------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
+| `nutritionist_agent` | 칼로리/매크로·질병 제약 중심 추천             | `profile`, `per_meal_targets`, `previous_validation_failures`                                                 | `nutritionist_recommendation`, `events` |
+| `chef_agent`         | 조리 시간·난이도·맛 중심 추천, 필요 시 레시피 검색  | `profile`, `per_meal_targets`, `COOKING_TIME_LIMITS`, `recipe_search_service`, `previous_validation_failures` | `chef_recommendation`, `events`         |
+| `budget_agent`       | Tavily 가격 정보를 포함한 cost-first 추천 | `per_meal_budget`, `per_meal_targets`, `previous_validation_failures`, `chef_recommendation`                  | `budget_recommendation`, `events`       |
 
 - **LLM 프롬프트 특징**
   - 모든 노드는 **JSON 응답 형식**을 엄격히 명시하여 Pydantic 검증 실패를 줄입니다.
@@ -187,13 +187,13 @@ validation_supervisor --(Send)--> {nutrition_checker, allergy_checker, time_chec
 
 #### 4.3.2 검증 노드
 
-| 노드 | 검증 내용 | 허용치/정책 | 실패 시 상태 |
-| --- | --- | --- | --- |
-| `nutrition_checker` | 칼로리 ±20%, 매크로 ±30% 이내인지 확인 | 재시도 3회 이상이면 허용치를 각각 25%, 35%로 완화 | `ValidationResult(passed=False, issues=[...])` |
-| `allergy_checker` | `profile.restrictions`에 포함된 재료가 사용됐는지 검사 | 부분 문자열 매칭(대소문자 무시). 제한 사항이 없으면 자동 통과. | `issues`에 제한 식품 명시 |
-| `time_checker` | `COOKING_TIME_LIMITS[profile.cooking_time]` 이하인지 검사 | 제한 초과분 분 수를 메시지에 포함 | `issues`에 초과 정보 저장 |
-| `health_checker` | 건강 조건(당뇨/고혈압/고지혈증 등)에 따른 설탕·나트륨·포화지방 제한 | 조건별 상한을 초과하면 세부 메시지 기록 | `issues`에 조건별 위반 내용 |
-| `budget_checker` | 메뉴 예상 비용이 예산 허용 범위 내인지 확인 | 재시도 횟수에 따라 허용 비율이 110%→115%로 완화 | `issues`에 초과 금액/비율 정보 |
+| 노드                  | 검증 내용                                               | 허용치/정책                                | 실패 시 상태                                        |
+| ------------------- | --------------------------------------------------- | ------------------------------------- | ---------------------------------------------- |
+| `nutrition_checker` | 칼로리 ±20%, 영양소 ±30% 이내인지 확인                          | 재시도 3회 이상이면 허용치를 각각 25%, 35%로 완화      | `ValidationResult(passed=False, issues=[...])` |
+| `allergy_checker`   | `profile.restrictions`에 포함된 재료가 사용됐는지 검사            | 부분 문자열 매칭(대소문자 무시). 제한 사항이 없으면 자동 통과. | `issues`에 제한 식품 명시                             |
+| `time_checker`      | `COOKING_TIME_LIMITS[profile.cooking_time]` 이하인지 검사 | 제한 초과분 분 수를 메시지에 포함                   | `issues`에 초과 정보 저장                             |
+| `health_checker`    | 건강 조건(당뇨/고혈압/고지혈증 등)에 따른 설탕·나트륨·포화지방 제한             | 조건별 상한을 초과하면 세부 메시지 기록                | `issues`에 조건별 위반 내용                            |
+| `budget_checker`    | 메뉴 예상 비용이 예산 허용 범위 내인지 확인                           | 재시도 횟수에 따라 허용 비율이 110%→115%로 완화       | `issues`에 초과 금액/비율 정보                          |
 
 - 결과는 모두 `validation_results` 리스트에 누적(-add reducer)되며, 각 노드는 진행 이벤트를 push 합니다.
 
@@ -201,6 +201,7 @@ validation_supervisor --(Send)--> {nutrition_checker, allergy_checker, time_chec
 
 - `validation_results`를 요약하여 로깅하고, 실패 항목을 `previous_validation_failures`에 정형화된 dict로 저장합니다.
 - `previous_validation_failures` 예시:
+  
   ```python
   {
       "validator": "nutrition_checker",
@@ -254,21 +255,26 @@ validation_supervisor --(Send)--> {nutrition_checker, allergy_checker, time_chec
 ## 5. 재시도 및 피드백 루프 심화
 
 1. **실패 기록 저장**  
+   
    - `validation_aggregator`가 실패 정보를 `previous_validation_failures`에 구조화하여 저장합니다.
    - 각 항목은 `retry_count`를 포함하여, 다음 회차에서 어떤 문제가 발생했는지 추적할 수 있습니다.
 
 2. **전문가 프롬프트 주입**  
+   
    - `nutritionist_agent`는 `validator == "nutrition_checker"`이면서 `retry_count == 현재 retry - 1`인 항목만 필터링합니다.
    - `chef_agent`는 `allergy_checker`, `time_checker` 실패 내역을 사용합니다.
    - `budget_agent`는 참고용으로 최근 실패 3개를 간단히 요약합니다.
 
 3. **점진적 완화(Progressive Relaxation)**  
+   
    - `nutrition_checker`는 재시도 3회 이상이면 허용 범위를 완화하여 영양 목표에 너무 오래 갇히지 않도록 합니다.
 
 4. **경고 부착**  
+   
    - 재시도 한계를 초과했을 때에도 그래프는 다음 끼니로 진행합니다. 대신 실패한 검증 메시지를 `_validation_warnings`에 보관했다가 `day_iterator`가 `current_menu.validation_warnings`에 붙입니다.
 
 5. **RETRY_MAPPING**  
+   
    - `app.utils.constants.RETRY_MAPPING`에서 검증기 → 전문가 매핑을 관리하므로, 새로운 검증을 추가하면 이 매핑을 업데이트하여 특정 전문가만 재실행하도록 만들 수 있습니다.
 
 ---
@@ -277,6 +283,7 @@ validation_supervisor --(Send)--> {nutrition_checker, allergy_checker, time_chec
 
 - **로그**: 모든 노드가 `logger.info/debug/warning/error`를 JSON 형태로 출력합니다. 예를 들어 `decision_maker`는 라우팅 결과와 실패 검증 목록을 로그에 남깁니다.
 - **SSE 이벤트**: 상태 업데이트에 `events` 리스트를 포함시키면 LangGraph reducer가 리스트를 병합하므로, 어떤 노드에서든 `events=[{...}]` 형태로 append 할 수 있습니다.
+  
   ```python
   {
       "type": "progress",
@@ -292,16 +299,19 @@ validation_supervisor --(Send)--> {nutrition_checker, allergy_checker, time_chec
 ## 7. 확장 및 커스터마이징 가이드
 
 1. **새 전문가/검증기 추가**
+   
    - `MealPlanState`에 추천/검증 결과 필드를 추가합니다.
    - 해당 노드 파일을 `nodes/...`에 생성하고 `main_graph.py`에서 `graph.add_node` 및 엣지를 추가합니다.
    - Supervisor(Send) 노드의 `Command` 목록을 업데이트합니다.
    - 검증 결과가 재시도 로직에 영향을 주어야 한다면 `RETRY_MAPPING`과 `decision_maker` 조건을 확장합니다.
 
 2. **상태 필드 변경**
+   
    - `MealPlanState` TypedDict와 관련 Pydantic 모델(Pydantic 검증에 쓰임)을 동시에 수정해야 합니다.
    - Reducer(`Annotated[..., add]`)가 필요한 리스트 필드는 `typing.Annotated`를 사용하여 자동 병합을 지정하세요.
 
 3. **테스트/디버깅**
+   
    - `graphs/meal_planning_subgraph.py`, `validation_subgraph.py`를 사용하면 특정 단계만 떼어내어 빠르게 실험할 수 있습니다.
    - `run_example.py`에 포함된 샘플 state를 수정하여 그래프를 수동 실행할 수 있습니다.
 
@@ -309,25 +319,25 @@ validation_supervisor --(Send)--> {nutrition_checker, allergy_checker, time_chec
 
 ## 8. 노드 빠른 참조표
 
-| 노드 | 파일 | 주요 입력 | 주요 출력 | 비고 |
-| --- | --- | --- | --- | --- |
-| `nutrition_calculator` | `nodes/nutrition_calculator.py` | `profile` | 목표/예산, 진행 초기화 | 그래프 최초 단계 |
-| `meal_planning_supervisor` | `nodes/meal_planning_supervisor.py` | `state` 전체 | `Command(Send ×3)` | 병렬 전문가 호출 |
-| `nutritionist_agent` | `nodes/meal_planning/nutritionist.py` | `per_meal_targets`, `previous_validation_failures` | `nutritionist_recommendation` | LLM 기반 |
-| `chef_agent` | `nodes/meal_planning/chef.py` | `cooking_time`, `skill_level`, `recipe_search` | `chef_recommendation` | 레시피 검색 통합 |
-| `budget_router` | `nodes/meal_planning/budget_router.py` | `state` 전체 | `Command(Send budget)` | chef 이후 budget 순차 실행용 |
-| `budget_agent` | `nodes/meal_planning/budget.py` | `per_meal_budget`, `chef_recommendation` | `budget_recommendation` | Tavily 가격 검색 |
-| `conflict_resolver` | `nodes/meal_planning/conflict_resolver.py` | 전문가 추천, `per_meal_targets` | `current_menu` | 최종 메뉴 확정 |
-| `validation_supervisor` | `nodes/validation_supervisor.py` | `current_menu` | `Command(Send ×5)` | 검증 병렬 실행 |
-| `nutrition_checker` | `nodes/validation/nutrition_checker.py` | `current_menu`, `per_meal_targets`, `retry_count` | `ValidationResult` | 허용치 완화 로직 포함 |
-| `allergy_checker` | `nodes/validation/allergy_checker.py` | `current_menu`, `profile.restrictions` | `ValidationResult` | 제한 없으면 자동 통과 |
-| `time_checker` | `nodes/validation/time_checker.py` | `current_menu`, `profile.cooking_time` | `ValidationResult` | 시간 초과 경고 |
-| `health_checker` | `nodes/validation/health_checker.py` | `current_menu`, `profile.health_conditions` | `ValidationResult` | 당뇨/고혈압/고지혈증 검증 |
-| `budget_checker` | `nodes/validation/budget_checker.py` | `current_menu`, `per_meal_budget`, `retry_count` | `ValidationResult` | 예산 초과 허용치 완화 |
-| `validation_aggregator` | `nodes/validation_aggregator.py` | `validation_results`, `retry_count` | `previous_validation_failures`, `events` | 실패 로그 축적 |
-| `decision_maker` | `nodes/decision_maker.py` | 검증 결과, 재시도 정보 | `"day_iterator"` or `"retry_router"` | 함수형 라우팅 |
-| `retry_router` | `nodes/retry_router.py` | `retry_count`, `validation_results` | `Command(goto=…)`, 재시도 상태 갱신 | 특정 전문가 재실행 |
-| `day_iterator` | `nodes/day_iterator.py` | `current_menu`, `completed_meals`, `weekly_plan`, `_validation_warnings` | 진행 상태 갱신 | 끼니/날짜 전환 |
+| 노드                         | 파일                                         | 주요 입력                                                                    | 주요 출력                                    | 비고                    |
+| -------------------------- | ------------------------------------------ | ------------------------------------------------------------------------ | ---------------------------------------- | --------------------- |
+| `nutrition_calculator`     | `nodes/nutrition_calculator.py`            | `profile`                                                                | 목표/예산, 진행 초기화                            | 그래프 최초 단계             |
+| `meal_planning_supervisor` | `nodes/meal_planning_supervisor.py`        | `state` 전체                                                               | `Command(Send ×3)`                       | 병렬 전문가 호출             |
+| `nutritionist_agent`       | `nodes/meal_planning/nutritionist.py`      | `per_meal_targets`, `previous_validation_failures`                       | `nutritionist_recommendation`            | LLM 기반                |
+| `chef_agent`               | `nodes/meal_planning/chef.py`              | `cooking_time`, `skill_level`, `recipe_search`                           | `chef_recommendation`                    | 레시피 검색 통합             |
+| `budget_router`            | `nodes/meal_planning/budget_router.py`     | `state` 전체                                                               | `Command(Send budget)`                   | chef 이후 budget 순차 실행용 |
+| `budget_agent`             | `nodes/meal_planning/budget.py`            | `per_meal_budget`, `chef_recommendation`                                 | `budget_recommendation`                  | Tavily 가격 검색          |
+| `conflict_resolver`        | `nodes/meal_planning/conflict_resolver.py` | 전문가 추천, `per_meal_targets`                                               | `current_menu`                           | 최종 메뉴 확정              |
+| `validation_supervisor`    | `nodes/validation_supervisor.py`           | `current_menu`                                                           | `Command(Send ×5)`                       | 검증 병렬 실행              |
+| `nutrition_checker`        | `nodes/validation/nutrition_checker.py`    | `current_menu`, `per_meal_targets`, `retry_count`                        | `ValidationResult`                       | 허용치 완화 로직 포함          |
+| `allergy_checker`          | `nodes/validation/allergy_checker.py`      | `current_menu`, `profile.restrictions`                                   | `ValidationResult`                       | 제한 없으면 자동 통과          |
+| `time_checker`             | `nodes/validation/time_checker.py`         | `current_menu`, `profile.cooking_time`                                   | `ValidationResult`                       | 시간 초과 경고              |
+| `health_checker`           | `nodes/validation/health_checker.py`       | `current_menu`, `profile.health_conditions`                              | `ValidationResult`                       | 당뇨/고혈압/고지혈증 검증        |
+| `budget_checker`           | `nodes/validation/budget_checker.py`       | `current_menu`, `per_meal_budget`, `retry_count`                         | `ValidationResult`                       | 예산 초과 허용치 완화          |
+| `validation_aggregator`    | `nodes/validation_aggregator.py`           | `validation_results`, `retry_count`                                      | `previous_validation_failures`, `events` | 실패 로그 축적              |
+| `decision_maker`           | `nodes/decision_maker.py`                  | 검증 결과, 재시도 정보                                                            | `"day_iterator"` or `"retry_router"`     | 함수형 라우팅               |
+| `retry_router`             | `nodes/retry_router.py`                    | `retry_count`, `validation_results`                                      | `Command(goto=…)`, 재시도 상태 갱신             | 특정 전문가 재실행            |
+| `day_iterator`             | `nodes/day_iterator.py`                    | `current_menu`, `completed_meals`, `weekly_plan`, `_validation_warnings` | 진행 상태 갱신                                 | 끼니/날짜 전환              |
 
 ---
 
@@ -336,30 +346,35 @@ validation_supervisor --(Send)--> {nutrition_checker, allergy_checker, time_chec
 각 노드가 어떤 입력을 읽고 어떤 업데이트를 반환하는지, 실패 시 어떻게 대응하는지를 보다 구체적으로 정리했습니다.
 
 ### `nutrition_calculator` (`nodes/nutrition_calculator.py`)
+
 - **주요 책임**: `profile`을 바탕으로 BMR/TDEE를 계산하고 목표 매크로 및 끼니당 예산을 설정합니다.
 - **입력**: 사용자 프로필 전 필드.
 - **출력/업데이트**: `daily_targets`, `per_meal_targets`, `per_meal_budget`, 첫 끼니 정보(`current_day/type/index`), `weekly_plan`, `completed_meals`, `retry_count`, 초기 `events`.
 - **오류 처리**: 계산 실패 시 로거에 에러를 남기고 예외를 올립니다(상위에서 try/except 필요).
 
 ### `meal_planning_supervisor` (`nodes/meal_planning_supervisor.py`)
+
 - **주요 책임**: `Send` API로 세 전문가 노드를 병렬 호출합니다.
 - **입력**: 전체 상태를 그대로 넘깁니다.
 - **출력**: `Command(goto=[Send(...), ...])`만 반환하며, 자체 업데이트는 없습니다.
 - **특징**: Supervisor 자체는 I/O가 없지만 로그로 어떤 끼니/요일을 처리 중인지 남깁니다.
 
 ### `nutritionist_agent` (`nodes/meal_planning/nutritionist.py`)
+
 - **주요 책임**: 끼니 목표 칼로리/매크로, 건강 조건에 맞는 메뉴를 LLM으로 생성합니다.
 - **입력**: `per_meal_targets`, `profile.health_conditions`, `profile.restrictions`, `previous_validation_failures`, `retry_count`.
 - **출력**: `nutritionist_recommendation`, 진행 이벤트.
 - **재시도 전략**: `previous_validation_failures` 중 `nutrition_checker` 실패만 추려 프롬프트에 포함하고, 재시도 회차를 명시합니다.
 
 ### `chef_agent` (`nodes/meal_planning/chef.py`)
+
 - **주요 책임**: 조리 시간 제한, 요리 실력, 맛 요소를 고려한 메뉴 추천.
 - **입력**: `profile.cooking_time`, `profile.skill_level`, `per_meal_targets`, `previous_validation_failures`, `retry_count`.
 - **출력**: `chef_recommendation`, 이벤트.
 - **특징**: `ENABLE_RECIPE_SEARCH`가 True이면 `recipe_search_service`에서 실제 레시피를 찾아 프롬프트에 첨부하며, `allergy/time_checker` 실패 피드백을 반영합니다.
 
 ### `budget_agent` (`nodes/meal_planning/budget.py`)
+
 - **주요 책임**: 끼니당 예산 내에서 가성비 높은 메뉴를 제안하며, 실제 재료 가격을 조회합니다.
 - **입력**: `per_meal_budget`, `per_meal_targets`, `profile.restrictions`, `previous_validation_failures`, `chef_recommendation`.
 - **출력**: `budget_recommendation`, 이벤트. 추천 데이터에는 `ingredient_prices`가 포함됩니다.
@@ -369,41 +384,48 @@ validation_supervisor --(Send)--> {nutrition_checker, allergy_checker, time_chec
 - **재시도 전략**: 다른 검증 실패 요약을 참고용으로 프롬프트 하단에 첨부하지만 직접적인 제약 조건은 예산에 집중합니다.
 
 ### `budget_router` (`nodes/meal_planning/budget_router.py`)
+
 - **주요 책임**: chef 실행 이후 budget 노드를 명시적으로 호출해야 할 때 사용할 수 있는 간단한 라우터.
 - **입력/출력**: 현재 상태를 그대로 받아 `Command(goto=[Send("budget", state)])`를 반환합니다.
 - **활용 포인트**: 특정 실험이나 서브그래프에서 budget을 순차 실행하고 싶을 때 삽입해, 셰프가 남긴 재료 정보를 확실히 활용할 수 있습니다.
 
 ### `conflict_resolver` (`nodes/meal_planning/conflict_resolver.py`)
+
 - **주요 책임**: 전문가 추천을 통합하여 최종 `Menu`를 결정.
 - **입력**: 세 전문가 추천, `current_menu`(재시도 시), `per_meal_targets`, `profile`, `per_meal_budget`.
 - **출력**: `current_menu`, 이벤트.
 - **특징**: 결측 추천은 이전 메뉴 정보를 `MealRecommendation`으로 재생성해 채우고, LLM에게 우선순위 규칙과 JSON 스키마를 명확히 전달합니다.
 
 ### `validation_supervisor` (`nodes/validation_supervisor.py`)
+
 - **주요 책임**: 검증 노드 다섯 개를 병렬 수행.
 - **입력**: `current_menu`, `profile`, `per_meal_targets`, `per_meal_budget`.
 - **출력**: `Command(goto=[Send(...)] ×5)`.
 - **특징**: Supervisor 자체는 상태 변경이 없고, 검증 개시 로그만 남깁니다.
 
 ### `nutrition_checker` (`nodes/validation/nutrition_checker.py`)
+
 - **주요 책임**: 메뉴의 칼로리/매크로가 목표 범위 안인지 판단.
 - **입력**: `current_menu`, `per_meal_targets`, `retry_count`.
 - **출력**: `validation_results` 리스트에 `ValidationResult` 추가, 이벤트.
 - **재시도 전략**: 재시도 3회 이상이면 허용 편차를 자동 완화하여 교착상태를 피합니다.
 
 ### `allergy_checker` (`nodes/validation/allergy_checker.py`)
+
 - **주요 책임**: 메뉴 재료가 `profile.restrictions`를 침해하는지 검사.
 - **입력**: `current_menu.ingredients`, `profile.restrictions`.
 - **출력**: `validation_results`에 `ValidationResult`, 이벤트.
 - **특징**: 제한 사항이 없으면 곧바로 통과하며 reason에 `"제한 사항이 없습니다."`를 기록합니다.
 
 ### `time_checker` (`nodes/validation/time_checker.py`)
+
 - **주요 책임**: 조리 시간이 사용자 허용 범위 내인지 확인.
 - **입력**: `current_menu.cooking_time_minutes`, `COOKING_TIME_LIMITS[profile.cooking_time]`.
 - **출력**: `ValidationResult`, 이벤트.
 - **특징**: 초과 시 초과 분량과 제한을 상세 메시지로 남겨 추후 프롬프트에 사용됩니다.
 
 ### `health_checker` (`nodes/validation/health_checker.py`)
+
 - **주요 책임**: 프로필의 건강 조건(당뇨/고혈압/고지혈증 등)에 맞춰 당류, 나트륨, 포화지방을 검증합니다.
 - **입력**: `profile.health_conditions`, `current_menu.carb_g`, `current_menu.sodium_mg`, `current_menu.fat_g`.
 - **출력**: `ValidationResult`, 이벤트.
@@ -414,30 +436,35 @@ validation_supervisor --(Send)--> {nutrition_checker, allergy_checker, time_chec
 - **특징**: 현재는 탄수화물/지방 수치로부터 당류/포화지방을 추정하며, 조건별 상한을 넘으면 구체적인 위반 메시지를 남깁니다. 건강 조건이 없으면 자동 통과합니다.
 
 ### `budget_checker` (`nodes/validation/budget_checker.py`)
+
 - **주요 책임**: 메뉴 예상 비용(`current_menu.estimated_cost`)이 예산 허용 범위 내인지 검증합니다.
 - **입력**: `per_meal_budget`, `current_menu.estimated_cost`, `retry_count`.
 - **출력**: `ValidationResult`, 이벤트.
 - **특징**: 재시도 횟수에 따라 허용 오버비율이 10%→15%로 완화되는 Progressive Relaxation을 적용합니다.
 
 ### `validation_aggregator` (`nodes/validation_aggregator.py`)
+
 - **주요 책임**: 병렬 검증 결과 요약, 실패 정보를 `previous_validation_failures`로 변환.
 - **입력**: `validation_results`, `retry_count`, `current_menu`.
 - **출력**: `previous_validation_failures`, 이벤트.
 - **특징**: 실패한 validator 이름/이슈를 모두 로깅하며, 이후 전문가 프롬프트가 참고할 수 있는 구조화된 dict를 반환합니다.
 
 ### `decision_maker` (`nodes/decision_maker.py`)
+
 - **주요 책임**: 다음 단계가 재시도인지 진행인지 결정.
 - **입력**: `validation_results`, `retry_count`, `max_retries`, `current_menu`.
 - **출력**: `"retry_router"` 또는 `"day_iterator"` 문자열.
 - **특징**: 재시도 한계에 도달하면 `_validation_warnings`에 실패 메시지를 저장해 `day_iterator`로 전달합니다.
 
 ### `retry_router` (`nodes/retry_router.py`)
+
 - **주요 책임**: 재시도 대상 노드를 라우팅하고 상태를 초기화.
 - **입력**: `retry_count`, `validation_results`.
 - **출력**: `Command(goto=다음 노드, update=상태 변경)`.
 - **로직 요약**: 첫 실패 시 `RETRY_MAPPING`에 따라 특정 전문가만 재실행, 이후에는 전체 재실행. 해당 전문가의 추천만 `None`으로 초기화하여 LLM 호출을 최소화합니다.
 
 ### `day_iterator` (`nodes/day_iterator.py`)
+
 - **주요 책임**: 확정된 메뉴를 누적/요약하고 다음 끼니 혹은 다음 날로 이동, 주간 완료 시 종료.
 - **입력**: `current_menu`, `completed_meals`, `weekly_plan`, `_validation_warnings`, `profile`, `current_day`, `current_meal_index`.
 - **출력**: 다음 끼니/날짜를 위한 상태 업데이트 또는 최종 `weekly_plan`과 완료 이벤트.
@@ -449,13 +476,14 @@ validation_supervisor --(Send)--> {nutrition_checker, allergy_checker, time_chec
 
 시스템은 재시도 시 검증 기준을 점진적으로 완화하여 데드락을 방지합니다. 주요 완화 정책은 다음과 같습니다:
 
-| Validator | 초기 허용 오차 | 3회 재시도 후 | 목적 |
-|-----------|---------------|---------------|------|
+| Validator           | 초기 허용 오차           | 3회 재시도 후           | 목적              |
+| ------------------- | ------------------ | ------------------ | --------------- |
 | `nutrition_checker` | ±20% 칼로리, ±30% 매크로 | ±25% 칼로리, ±35% 매크로 | 데드락 방지 및 실용성 확보 |
-| `budget_checker` | +10% 예산 초과 허용 | +15% 예산 초과 허용 | 유연한 비용 조정 |
-| 기타 검증기 | 고정 기준 유지 | 고정 기준 유지 | 건강/안전 기준 엄격 유지 |
+| `budget_checker`    | +10% 예산 초과 허용      | +15% 예산 초과 허용      | 유연한 비용 조정       |
+| 기타 검증기              | 고정 기준 유지           | 고정 기준 유지           | 건강/안전 기준 엄격 유지  |
 
 **적용 로직**:
+
 - `nutrition_checker.py:51-61`: `retry_count >= 3`일 때 허용 오차 확대
 - `budget_checker.py:31-36`: `retry_count >= 3`일 때 예산 오버비율 15%로 완화
 - `allergy_checker`, `time_checker`, `health_checker`: 재시도 횟수와 무관하게 동일 기준 적용

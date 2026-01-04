@@ -1,10 +1,8 @@
 import { ref, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
 import type { UserProfile, SSEEvent, MealPlan } from '@/types'
 import { useMealPlanStore } from '@/stores/mealPlan'
 
 export function useSSE() {
-  const router = useRouter()
   const mealPlanStore = useMealPlanStore()
   const eventSource = ref<EventSource | null>(null)
   const isConnected = ref(false)
@@ -206,6 +204,9 @@ export function useSSE() {
       budget: 'pending',
     })
 
+    // Reset retry count for next meal
+    mealPlanStore.resetRetryCount()
+
     // NOTE: Do NOT update current_meal here
     // day_iterator will send a progress event with the NEXT meal info
     // If we update current_meal here with completed meal info, UI won't advance
@@ -236,9 +237,7 @@ export function useSSE() {
         created_at: new Date().toISOString(),
       }
       mealPlanStore.setMealPlan(mealPlan)
-
-      // Navigate to result page after setting meal plan
-      router.push('/result')
+      // ProcessingView will display completion UI automatically
     } else {
       mealPlanStore.stopProcessing()
     }

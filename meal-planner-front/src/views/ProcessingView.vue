@@ -1,115 +1,80 @@
 <script setup lang="ts">
 import { useMealPlanStore } from '@/stores/mealPlan'
-import { VALIDATORS } from '@/constants'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 const mealPlanStore = useMealPlanStore()
+const router = useRouter()
 
 const isComplete = computed(() => mealPlanStore.totalProgress >= 100)
+const hasError = computed(() => mealPlanStore.hasError)
+const errorMessage = computed(() => mealPlanStore.errorMessage)
+const showErrorBanner = ref(true)
 
 function startOver() {
   mealPlanStore.clearMealPlan()
   window.location.href = '/'
 }
+
+function retryGeneration() {
+  mealPlanStore.clearMealPlan()
+  router.push('/input')
+}
+
+function goHome() {
+  mealPlanStore.clearMealPlan()
+  router.push('/')
+}
+
+function dismissError() {
+  showErrorBanner.value = false
+}
 </script>
 
 <template>
   <div class="container mx-auto px-4 py-8 max-w-4xl">
-    <!-- 완료 상태 헤더 -->
+    <!-- 헤더 -->
     <h1 v-if="isComplete" class="text-3xl font-bold text-center mb-8">
       🎉 식단이 완성되었습니다!
     </h1>
     <h1 v-else class="text-3xl font-bold text-center mb-8">식단 생성 중...</h1>
 
-    <!-- 진행 중 UI (100% 미만) -->
-    <div v-if="!isComplete">
-      <!-- Progress Bar -->
-      <div class="mb-8">
-        <div class="flex justify-between mb-2">
-          <span class="text-sm font-medium text-gray-700">진행률</span>
-          <span class="text-sm font-medium text-gray-700">{{ mealPlanStore.totalProgress }}%</span>
-        </div>
-        <div class="w-full bg-gray-200 rounded-full h-4">
-          <div
-            class="bg-blue-600 h-4 rounded-full transition-all duration-300"
-            :style="{ width: mealPlanStore.totalProgress + '%' }"
-          ></div>
-        </div>
-      </div>
-
-      <!-- Validation Status (5 validators) -->
-      <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 class="text-xl font-bold mb-4">검증 상태</h2>
-        <div class="grid grid-cols-5 gap-4">
-          <div
-            v-for="validator in VALIDATORS"
-            :key="validator.key"
-            class="text-center"
-          >
-            <div class="text-3xl mb-2">{{ validator.icon }}</div>
-            <div class="text-sm font-medium mb-1">{{ validator.label }}</div>
-            <div
-              :class="[
-                'text-xs px-2 py-1 rounded',
-                mealPlanStore.validationState[validator.key as keyof typeof mealPlanStore.validationState] === 'passed'
-                  ? 'bg-green-100 text-green-800'
-                  : mealPlanStore.validationState[validator.key as keyof typeof mealPlanStore.validationState] === 'failed'
-                  ? 'bg-red-100 text-red-800'
-                  : 'bg-gray-100 text-gray-600'
-              ]"
-            >
-              {{
-                mealPlanStore.validationState[validator.key as keyof typeof mealPlanStore.validationState] === 'passed'
-                  ? '통과'
-                  : mealPlanStore.validationState[validator.key as keyof typeof mealPlanStore.validationState] === 'failed'
-                  ? '실패'
-                  : '대기 중'
-              }}
+    <!-- 에러 배너 (진행 중일 때만 표시) -->
+    <div v-if="hasError && !isComplete && showErrorBanner" class="bg-red-50 border-l-4 border-red-500 rounded-lg p-6 mb-6">
+      <div class="flex justify-between items-start">
+        <div class="flex items-start gap-3 flex-1">
+          <div class="text-2xl">🚨</div>
+          <div class="flex-1">
+            <h3 class="font-bold text-red-700 mb-2">오류가 발생했습니다</h3>
+            <p class="text-sm text-red-600 mb-4">{{ errorMessage }}</p>
+            <div class="flex gap-2">
+              <button
+                @click="retryGeneration"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+              >
+                다시 시도
+              </button>
+              <button
+                @click="goHome"
+                class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm font-medium"
+              >
+                처음으로
+              </button>
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- Current Status -->
-      <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 class="text-xl font-bold mb-4">현재 상태</h2>
-        <p class="text-gray-700">
-          {{ mealPlanStore.currentDay }}일차 {{ mealPlanStore.currentMealType || '준비 중' }} 생성 중...
-        </p>
-        <p v-if="mealPlanStore.processingState.retry_count > 0" class="text-orange-600 mt-2">
-          재시도 횟수: {{ mealPlanStore.processingState.retry_count }}
-        </p>
-      </div>
-
-      <!-- Completed Meals (진행 중) -->
-      <div v-if="mealPlanStore.completedMeals.length > 0" class="bg-white rounded-lg shadow-md p-6">
-        <h2 class="text-xl font-bold mb-4">완료된 식단</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div
-            v-for="(meal, index) in mealPlanStore.completedMeals"
-            :key="index"
-            class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
-          >
-            <div class="flex justify-between items-start mb-2">
-              <div class="flex items-center gap-2">
-                <span class="font-semibold text-gray-800">
-                  {{ meal.day }}일차 {{ meal.meal_type }}
-                </span>
-                <span class="text-green-600">✅</span>
-              </div>
-            </div>
-            <p class="text-lg font-medium text-gray-900 mb-2">{{ meal.menu_name }}</p>
-            <div class="flex gap-4 text-sm text-gray-600">
-              <span>{{ meal.calories }}kcal</span>
-              <span>{{ meal.cost.toLocaleString() }}원</span>
-            </div>
-          </div>
-        </div>
+        <button
+          @click="dismissError"
+          class="text-red-400 hover:text-red-600 text-xl font-bold ml-4"
+          title="닫기"
+        >
+          ✕
+        </button>
       </div>
     </div>
 
     <!-- 완료 UI (100%) -->
-    <div v-else class="space-y-6">
+    <div v-if="isComplete" class="space-y-6">
       <!-- Summary -->
       <div class="bg-white rounded-lg shadow-md p-6">
         <h2 class="text-2xl font-bold mb-4">요약</h2>
@@ -167,6 +132,60 @@ function startOver() {
         >
           새 식단 만들기
         </button>
+      </div>
+    </div>
+
+    <!-- 진행 중 UI -->
+    <div v-else>
+      <!-- Progress Bar -->
+      <div class="mb-8">
+        <div class="flex justify-between mb-2">
+          <span class="text-sm font-medium text-gray-700">진행률</span>
+          <span class="text-sm font-medium text-gray-700">{{ mealPlanStore.totalProgress }}%</span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-4">
+          <div
+            class="bg-blue-600 h-4 rounded-full transition-all duration-300"
+            :style="{ width: mealPlanStore.totalProgress + '%' }"
+          ></div>
+        </div>
+      </div>
+
+      <!-- Current Status -->
+      <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-xl font-bold mb-4">현재 상태</h2>
+        <p class="text-gray-700">
+          {{ mealPlanStore.currentDay }}일차 {{ mealPlanStore.currentMealType || '준비 중' }} 생성 중...
+        </p>
+        <p v-if="mealPlanStore.processingState.retry_count > 0" class="text-orange-600 mt-2">
+          재시도 횟수: {{ mealPlanStore.processingState.retry_count }}
+        </p>
+      </div>
+
+      <!-- Completed Meals (진행 중) -->
+      <div v-if="mealPlanStore.completedMeals.length > 0" class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-bold mb-4">완료된 식단</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div
+            v-for="(meal, index) in mealPlanStore.completedMeals"
+            :key="index"
+            class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+          >
+            <div class="flex justify-between items-start mb-2">
+              <div class="flex items-center gap-2">
+                <span class="font-semibold text-gray-800">
+                  {{ meal.day }}일차 {{ meal.meal_type }}
+                </span>
+                <span class="text-green-600">✅</span>
+              </div>
+            </div>
+            <p class="text-lg font-medium text-gray-900 mb-2">{{ meal.menu_name }}</p>
+            <div class="flex gap-4 text-sm text-gray-600">
+              <span>{{ meal.calories }}kcal</span>
+              <span>{{ meal.cost.toLocaleString() }}원</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

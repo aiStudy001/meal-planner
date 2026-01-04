@@ -143,6 +143,10 @@ export const useMealPlanStore = defineStore('mealPlan', () => {
     processingState.value.retry_count += 1
   }
 
+  function resetRetryCount() {
+    processingState.value.retry_count = 0
+  }
+
   function setError(error: string) {
     processingState.value.error = error
     processingState.value.is_processing = false
@@ -212,6 +216,7 @@ export const useMealPlanStore = defineStore('mealPlan', () => {
     updateAgentStatus,
     addEventLog,
     incrementRetryCount,
+    resetRetryCount,
     setError,
     setMealPlan,
     clearMealPlan,

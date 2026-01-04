@@ -183,15 +183,6 @@ export const BUDGET_RATIOS = {
   간식: 1.5,
 }
 
-// Validator Names and Icons (⭐ Expanded to 5)
-export const VALIDATORS = [
-  { key: 'nutrition', label: '영양', icon: '🥗', description: '영양소 균형 검증' },
-  { key: 'allergy', label: '알레르기', icon: '⚠️', description: '알레르기 성분 검증' },
-  { key: 'time', label: '조리시간', icon: '⏱️', description: '조리 시간 검증' },
-  { key: 'health', label: '건강제약', icon: '🏥', description: '건강 상태 제약 검증' },
-  { key: 'budget', label: '예산', icon: '💰', description: '예산 범위 검증' },
-]
-
 // Recipe Database Info
 export const RECIPE_DB_INFO = {
   total_count: 336_588,
