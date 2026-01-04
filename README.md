@@ -90,7 +90,7 @@ send_list = [
 ]
 ```
 
-**결과**: **60% 지연 감소** (~5-10초로 단축)
+**결과**: **60% 지연 감소** 
 
 ### 2. Progressive Relaxation 재시도 전략
 
@@ -148,7 +148,7 @@ curl https://mise.run | sh
 # Windows: scoop install mise 또는 winget install jdx.mise
 
 # 프로젝트 클론
-git clone https://github.com/YOUR-USERNAME/meal-planner.git
+git clone https://github.com/aiStudy001/meal-planner.git
 cd meal-planner
 
 # mise 환경 설정 (Python 3.13, Node.js 24.12 자동 설치)
