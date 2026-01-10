@@ -79,7 +79,8 @@
       "Bash(del \"C:\\\\Users\\\\lenovo\\\\Documents\\\\code\\\\jetbrain\\\\meal-planner\\\\meal-planner-front\\\\src\\\\views\\\\ResultView.vue\")",
       "Bash(iconv:*)",
       "mcp__desktop-commander__move_file",
-      "mcp__playwright__browser_fill_form"
+      "mcp__playwright__browser_fill_form",
+      "mcp__desktop-commander__read_multiple_files"
     ]
   }
 }
