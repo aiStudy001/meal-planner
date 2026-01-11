@@ -2,7 +2,8 @@
 
 ## 실제 동작 URL
 
-- **배포 URL**: https://a02d1642dd24.ngrok-free.app/
+- **배포 URL**: http://52.64.172.101:3000/
+- **백엔드 API**: http://52.64.172.101:8000/
 - **GitHub**: https://github.com/aiStudy001/meal-planner
 - **시연 영상**: https://youtu.be/cbinjZN_QXk
 
