@@ -2,7 +2,6 @@
 import { useMealPlanStore } from '@/stores/mealPlan'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { usePDFExport } from '@/composables/usePDFExport'
 import { useMealPlanStorage } from '@/composables/useMealPlanStorage'
 import ShoppingListModal from '@/components/ShoppingListModal.vue'
 import SavedPlansModal from '@/components/SavedPlansModal.vue'
@@ -10,7 +9,6 @@ import MealCard from '@/components/MealCard.vue'
 
 const mealPlanStore = useMealPlanStore()
 const router = useRouter()
-const { exportToPDF } = usePDFExport()
 const { saveMealPlan } = useMealPlanStorage()
 
 const isComplete = computed(() => mealPlanStore.totalProgress >= 100)
@@ -37,19 +35,6 @@ function goHome() {
 
 function dismissError() {
   showErrorBanner.value = false
-}
-
-function exportToJSON() {
-  if (!mealPlanStore.mealPlan) return
-
-  const jsonStr = JSON.stringify(mealPlanStore.mealPlan, null, 2)
-  const blob = new Blob([jsonStr], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-  const link = document.createElement('a')
-  link.href = url
-  link.download = `meal-plan-${new Date().toISOString().split('T')[0]}.json`
-  link.click()
-  URL.revokeObjectURL(url)
 }
 
 function handleSavePlan() {
@@ -220,7 +205,7 @@ function handleSavePlan() {
       </div>
 
       <!-- Completed Meals (진행 중) -->
-      <div v-if="mealPlanStore.mealPlan?.days.length > 0" class="space-y-6">
+      <div v-if="mealPlanStore.mealPlan && mealPlanStore.mealPlan.days && mealPlanStore.mealPlan.days.length > 0" class="space-y-6">
         <div
           v-for="day in mealPlanStore.mealPlan.days"
           :key="day.day"
@@ -233,7 +218,7 @@ function handleSavePlan() {
               :key="`${day.day}-${meal.meal_type}`"
               :meal="meal"
               :day="day.day"
-              :meal-plan="mealPlanStore.mealPlan"
+              :meal-plan="mealPlanStore.mealPlan!"
               :is-complete="false"
             />
           </div>

@@ -45,8 +45,8 @@ export function useAlternativeRecipes() {
       })
 
       // Add macro parameters (탄단지 비율 매칭)
-      if (meal.recipe.nutrition.carb_g !== undefined && meal.recipe.nutrition.carb_g !== null) {
-        params.append('target_carb_g', meal.recipe.nutrition.carb_g.toString())
+      if (meal.recipe.nutrition.carbs_g !== undefined && meal.recipe.nutrition.carbs_g !== null) {
+        params.append('target_carb_g', meal.recipe.nutrition.carbs_g.toString())
       }
       if (meal.recipe.nutrition.protein_g !== undefined && meal.recipe.nutrition.protein_g !== null) {
         params.append('target_protein_g', meal.recipe.nutrition.protein_g.toString())
@@ -105,19 +105,21 @@ export function useAlternativeRecipes() {
     targetMealType: '아침' | '점심' | '저녁' | '간식',
     alternativeRecipe: AlternativeRecipe
   ) {
-    if (!mealPlanStore.mealPlan) {
+    const mealPlan = mealPlanStore.mealPlan
+    if (!mealPlan) {
       console.error('No meal plan available to apply alternative')
       return
     }
 
     // Find day and meal indexes
-    const dayIndex = mealPlanStore.mealPlan.days.findIndex(d => d.day === targetDay)
+    const dayIndex = mealPlan.days.findIndex(d => d.day === targetDay)
     if (dayIndex === -1) {
       console.error(`Day ${targetDay} not found in meal plan`)
       return
     }
 
-    const mealIndex = mealPlanStore.mealPlan.days[dayIndex].meals.findIndex(
+    const dayData = mealPlan.days[dayIndex]!
+    const mealIndex = dayData.meals.findIndex(
       m => m.meal_type === targetMealType
     )
     if (mealIndex === -1) {
@@ -126,7 +128,7 @@ export function useAlternativeRecipes() {
     }
 
     // Get current meal for fallback values
-    const currentMeal = mealPlanStore.mealPlan.days[dayIndex].meals[mealIndex]
+    const currentMeal = dayData.meals[mealIndex]!
 
     // Create updated meal with alternative recipe
     // Note: Alternative recipe might have null nutrition values from Tavily
@@ -135,12 +137,12 @@ export function useAlternativeRecipes() {
       meal_type: targetMealType,
       recipe: {
         name: alternativeRecipe.name,
-        ingredients: alternativeRecipe.ingredients.length > 0
-          ? alternativeRecipe.ingredients.map(ing => ({ name: ing, amount: '적당량' }))
-          : currentMeal.recipe.ingredients, // Fallback to current ingredients
+        ingredients: (alternativeRecipe.ingredients.length > 0
+          ? alternativeRecipe.ingredients
+          : currentMeal.recipe.ingredients) as string[], // Fallback to current ingredients
         instructions: [`원본 레시피: ${alternativeRecipe.url}`],
         cooking_time_min: alternativeRecipe.cooking_time || currentMeal.recipe.cooking_time_min,
-        difficulty: alternativeRecipe.difficulty || currentMeal.recipe.difficulty,
+        difficulty: (alternativeRecipe.difficulty || currentMeal.recipe.difficulty) as '쉬움' | '보통' | '어려움',
         estimated_cost: alternativeRecipe.cost || currentMeal.recipe.estimated_cost,
         nutrition: {
           calories_kcal: alternativeRecipe.calories || currentMeal.recipe.nutrition.calories_kcal,
@@ -162,10 +164,10 @@ export function useAlternativeRecipes() {
     }
 
     // Replace the meal
-    mealPlanStore.mealPlan.days[dayIndex].meals[mealIndex] = updatedMeal
+    dayData.meals[mealIndex] = updatedMeal
 
     // Recalculate daily totals
-    const dayMeals = mealPlanStore.mealPlan.days[dayIndex].meals
+    const dayMeals = dayData.meals
     const totalNutrition = {
       calories_kcal: dayMeals.reduce((sum, m) => sum + m.recipe.nutrition.calories_kcal, 0),
       protein_g: dayMeals.reduce((sum, m) => sum + m.recipe.nutrition.protein_g, 0),
@@ -175,11 +177,11 @@ export function useAlternativeRecipes() {
     }
     const totalCost = dayMeals.reduce((sum, m) => sum + m.recipe.estimated_cost, 0)
 
-    mealPlanStore.mealPlan.days[dayIndex].total_nutrition = totalNutrition
-    mealPlanStore.mealPlan.days[dayIndex].total_cost = totalCost
+    dayData.total_nutrition = totalNutrition
+    dayData.total_cost = totalCost
 
     // Recalculate total cost
-    mealPlanStore.mealPlan.total_cost = mealPlanStore.mealPlan.days.reduce((sum, d) => sum + d.total_cost, 0)
+    mealPlan.total_cost = mealPlan.days.reduce((sum, d) => sum + d.total_cost, 0)
 
     console.log('Alternative recipe applied:', {
       day: targetDay,

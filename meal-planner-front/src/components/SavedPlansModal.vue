@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useMealPlanStorage, type SavedPlanMetadata } from '@/composables/useMealPlanStorage'
+import { useMealPlanStorage } from '@/composables/useMealPlanStorage'
 import { useMealPlanStore } from '@/stores/mealPlan'
 
 interface Props {

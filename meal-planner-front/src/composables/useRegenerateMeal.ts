@@ -66,7 +66,7 @@ export function useRegenerateMeal() {
       .slice(-3) // Last 3 days
       .flatMap(d => d.meals.flatMap(m =>
         m.recipe.ingredients.slice(0, 2).map(ing =>
-          typeof ing === 'string' ? ing : (ing.name || String(ing))
+          typeof ing === 'string' ? ing : ((ing as any).name || String(ing))
         )
       ))
 
@@ -275,16 +275,20 @@ export function useRegenerateMeal() {
       }
 
       // Find and replace the specific meal in meal plan
-      const dayIndex = mealPlanStore.mealPlan.days.findIndex(d => d.day === targetDay)
+      const mealPlan = mealPlanStore.mealPlan
+      if (!mealPlan) return
+
+      const dayIndex = mealPlan.days.findIndex(d => d.day === targetDay)
       if (dayIndex !== -1) {
-        const mealIndex = mealPlanStore.mealPlan.days[dayIndex].meals.findIndex(m => m.meal_type === targetMealType)
+        const dayData = mealPlan.days[dayIndex]!
+        const mealIndex = dayData.meals.findIndex(m => m.meal_type === targetMealType)
 
         if (mealIndex !== -1) {
           // Replace the meal
-          mealPlanStore.mealPlan.days[dayIndex].meals[mealIndex] = newMeal
+          dayData.meals[mealIndex] = newMeal
 
           // Recalculate daily totals
-          const dayMeals = mealPlanStore.mealPlan.days[dayIndex].meals
+          const dayMeals = dayData.meals
           const totalNutrition = {
             calories_kcal: dayMeals.reduce((sum, m) => sum + m.recipe.nutrition.calories_kcal, 0),
             protein_g: dayMeals.reduce((sum, m) => sum + m.recipe.nutrition.protein_g, 0),
@@ -294,11 +298,11 @@ export function useRegenerateMeal() {
           }
           const totalCost = dayMeals.reduce((sum, m) => sum + m.recipe.estimated_cost, 0)
 
-          mealPlanStore.mealPlan.days[dayIndex].total_nutrition = totalNutrition
-          mealPlanStore.mealPlan.days[dayIndex].total_cost = totalCost
+          dayData.total_nutrition = totalNutrition
+          dayData.total_cost = totalCost
 
           // Recalculate total cost
-          mealPlanStore.mealPlan.total_cost = mealPlanStore.mealPlan.days.reduce((sum, d) => sum + d.total_cost, 0)
+          mealPlan.total_cost = mealPlan.days.reduce((sum, d) => sum + d.total_cost, 0)
 
           console.log('Meal plan updated with regenerated meal')
         }

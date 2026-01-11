@@ -96,7 +96,7 @@ async function handleShowAlternatives() {
     <div class="ingredients-preview">
       <span class="label">주재료:</span>
       <span class="ingredients-list">
-        {{ meal.recipe.ingredients.map(ing => ing.name || ing).join(', ') }}
+        {{ meal.recipe.ingredients.map(ing => typeof ing === 'string' ? ing : (ing as any).name).join(', ') }}
 <!--         <span v-if="meal.recipe.ingredients.length > 3" class="more-indicator"> -->
 <!--           외 {{ meal.recipe.ingredients.length - 3 }}개 -->
 <!--         </span> -->
