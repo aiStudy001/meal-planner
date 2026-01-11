@@ -2,14 +2,18 @@
 import { useMealPlanStore } from '@/stores/mealPlan'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { usePDFExport } from '@/composables/usePDFExport'
+import ShoppingListModal from '@/components/ShoppingListModal.vue'
 
 const mealPlanStore = useMealPlanStore()
 const router = useRouter()
+const { exportToPDF } = usePDFExport()
 
 const isComplete = computed(() => mealPlanStore.totalProgress >= 100)
 const hasError = computed(() => mealPlanStore.hasError)
 const errorMessage = computed(() => mealPlanStore.errorMessage)
 const showErrorBanner = ref(true)
+const showShoppingList = ref(false)
 
 function startOver() {
   mealPlanStore.clearMealPlan()
@@ -28,6 +32,19 @@ function goHome() {
 
 function dismissError() {
   showErrorBanner.value = false
+}
+
+function exportToJSON() {
+  if (!mealPlanStore.mealPlan) return
+
+  const jsonStr = JSON.stringify(mealPlanStore.mealPlan, null, 2)
+  const blob = new Blob([jsonStr], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `meal-plan-${new Date().toISOString().split('T')[0]}.json`
+  link.click()
+  URL.revokeObjectURL(url)
 }
 </script>
 
@@ -125,7 +142,27 @@ function dismissError() {
       </div>
 
       <!-- Actions -->
-      <div class="flex justify-center gap-4 pt-4">
+      <div class="flex flex-col items-center gap-4 pt-4">
+        <div class="flex flex-wrap justify-center gap-3">
+          <button
+            @click="() => exportToPDF(mealPlanStore.mealPlan!)"
+            class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium flex items-center gap-2"
+          >
+            📄 PDF 다운로드
+          </button>
+          <button
+            @click="exportToJSON"
+            class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center gap-2"
+          >
+            💾 JSON 다운로드
+          </button>
+          <button
+            @click="showShoppingList = true"
+            class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium flex items-center gap-2"
+          >
+            🛒 장보기 리스트
+          </button>
+        </div>
         <button
           @click="startOver"
           class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
@@ -188,5 +225,13 @@ function dismissError() {
         </div>
       </div>
     </div>
+
+    <!-- Shopping List Modal -->
+    <ShoppingListModal
+      v-if="mealPlanStore.mealPlan"
+      :meal-plan="mealPlanStore.mealPlan"
+      :show="showShoppingList"
+      @close="showShoppingList = false"
+    />
   </div>
 </template>

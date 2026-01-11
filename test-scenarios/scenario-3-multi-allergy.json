@@ -1,0 +1,31 @@
+{
+  "name": "다중 알레르기 (견과류, 해산물, 우유)",
+  "description": "28세 남성, 다중 알레르기 보유 - 견과류, 해산물, 유제품 제외 식단",
+  "profile": {
+    "gender": "male",
+    "age": 28,
+    "height": 172,
+    "weight": 70,
+    "goal": "유지",
+    "activity_level": "moderate",
+    "allergies": [
+      "견과류",
+      "해산물",
+      "우유"
+    ],
+    "dietary_preferences": [],
+    "health_conditions": [],
+    "cooking_time": "15분 이내",
+    "skill_level": "초급",
+    "meals_per_day": 3,
+    "days": 3,
+    "budget": 35000,
+    "budget_type": "weekly",
+    "budget_distribution": "equal"
+  },
+  "expected": {
+    "daily_calories": "2000-2200 kcal",
+    "protein_target": "70-90g",
+    "validation_notes": "알레르기 식재료 완전 제외, 대체 단백질원(닭고기, 돼지고기, 두부) 활용"
+  }
+}

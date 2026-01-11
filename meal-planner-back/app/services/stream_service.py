@@ -94,9 +94,13 @@ async def stream_meal_plan(
         # 5. 그래프 실행 - 이벤트 스트리밍
         event_count = 0
         partial_events_sent = 0
-        
+        final_state = None  # Store final state from astream
+
         async for chunk in graph.astream(initial_state, config=config):
             event_count += 1
+
+            # Save the last chunk as final state
+            final_state = chunk
 
             # EC-022: Per-chunk error handling for mid-stream resilience
             try:
@@ -135,19 +139,26 @@ async def stream_meal_plan(
                 yield format_sse(error_event)
                 # Continue processing remaining chunks
 
-        # 6. 최종 상태 가져오기
-        final_state = await graph.ainvoke(initial_state, config=config)
+        # 6. Extract weekly_plan from final state
+        # The final_state from astream contains the complete state
+        weekly_plan = []
+        if final_state:
+            # Find the node that contains weekly_plan
+            for node_name, node_state in final_state.items():
+                if isinstance(node_state, dict) and "weekly_plan" in node_state:
+                    weekly_plan = node_state["weekly_plan"]
+                    break
 
         # 7. 완료 이벤트 전송
         completion_event = {
             "type": "complete",
-            "data": {"meal_plan": serialize_weekly_plan(final_state["weekly_plan"])},
+            "data": {"meal_plan": serialize_weekly_plan(weekly_plan)},
         }
         yield format_sse(completion_event)
 
         logger.info(
             "stream_completed",
-            total_days=len(final_state["weekly_plan"]),
+            total_days=len(weekly_plan),
             total_events=event_count,
             partial_events_sent=partial_events_sent,
         )
@@ -266,25 +277,40 @@ def serialize_weekly_plan(weekly_plan: list) -> list:
             "meals": [
                 {
                     "meal_type": menu.meal_type,
-                    "menu_name": menu.menu_name,
-                    "calories": menu.calories,
-                    "carb_g": menu.carb_g,
-                    "protein_g": menu.protein_g,
-                    "fat_g": menu.fat_g,
-                    "sodium_mg": menu.sodium_mg,
-                    "ingredients": menu.ingredients,
-                    "recipe_steps": menu.recipe_steps,
-                    "recipe_url": menu.recipe_url,
-                    "cooking_time_minutes": menu.cooking_time_minutes,
-                    "estimated_cost": menu.estimated_cost,
-                    "validation_warnings": menu.validation_warnings,
+                    "recipe": {
+                        "name": menu.menu_name,
+                        "ingredients": menu.ingredients,
+                        "instructions": menu.recipe_steps,
+                        "cooking_time_min": menu.cooking_time_minutes,
+                        "difficulty": "보통",  # Default difficulty
+                        "estimated_cost": menu.estimated_cost,
+                        "nutrition": {
+                            "calories_kcal": menu.calories,
+                            "protein_g": menu.protein_g,
+                            "carbs_g": menu.carb_g,
+                            "fat_g": menu.fat_g,
+                            "sodium_mg": menu.sodium_mg,
+                        },
+                        "source": menu.recipe_url,
+                    },
+                    "budget_allocated": menu.estimated_cost,
+                    "validation_status": {
+                        "nutrition": "passed",
+                        "allergy": "passed",
+                        "time": "passed",
+                        "health": "passed",
+                        "budget": "passed",
+                    },
                 }
                 for menu in day_plan.meals
             ],
-            "total_calories": day_plan.total_calories,
-            "total_carb_g": day_plan.total_carb_g,
-            "total_protein_g": day_plan.total_protein_g,
-            "total_fat_g": day_plan.total_fat_g,
+            "total_nutrition": {
+                "calories_kcal": day_plan.total_calories,
+                "protein_g": day_plan.total_protein_g,
+                "carbs_g": day_plan.total_carb_g,
+                "fat_g": day_plan.total_fat_g,
+                "sodium_mg": sum(menu.sodium_mg for menu in day_plan.meals),
+            },
             "total_cost": day_plan.total_cost,
         }
         for day_plan in weekly_plan

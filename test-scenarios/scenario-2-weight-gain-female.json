@@ -1,0 +1,27 @@
+{
+  "name": "체중 증가 여성 (고칼로리 균형)",
+  "description": "25세 여성의 건강한 체중 증가 목표 - 균형잡힌 영양소 비율로 근육량 증가",
+  "profile": {
+    "gender": "female",
+    "age": 25,
+    "height": 162,
+    "weight": 48,
+    "goal": "벌크업",
+    "activity_level": "high",
+    "allergies": [],
+    "dietary_preferences": [],
+    "health_conditions": [],
+    "cooking_time": "30분 이내",
+    "skill_level": "초급",
+    "meals_per_day": 3,
+    "days": 3,
+    "budget": 40000,
+    "budget_type": "weekly",
+    "budget_distribution": "equal"
+  },
+  "expected": {
+    "daily_calories": "2200-2500 kcal",
+    "protein_target": "80-100g",
+    "validation_notes": "활동량 높은 여성, 칼로리 잉여 필요, 단백질/탄수화물/지방 균형"
+  }
+}

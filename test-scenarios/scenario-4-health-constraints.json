@@ -1,0 +1,30 @@
+{
+  "name": "건강 제약 (당뇨병 + 고혈압)",
+  "description": "55세 남성, 당뇨병과 고혈압 관리 - 저염, 저당, 혈당 조절 식단",
+  "profile": {
+    "gender": "male",
+    "age": 55,
+    "height": 168,
+    "weight": 75,
+    "goal": "질병관리",
+    "activity_level": "low",
+    "allergies": [],
+    "dietary_preferences": [],
+    "health_conditions": [
+      "당뇨병",
+      "고혈압"
+    ],
+    "cooking_time": "제한 없음",
+    "skill_level": "고급",
+    "meals_per_day": 3,
+    "days": 3,
+    "budget": 45000,
+    "budget_type": "weekly",
+    "budget_distribution": "equal"
+  },
+  "expected": {
+    "daily_calories": "1700-1900 kcal",
+    "protein_target": "60-80g",
+    "validation_notes": "저GI 식품 위주, 나트륨 제한(하루 2000mg 이하), 복합 탄수화물 선호"
+  }
+}

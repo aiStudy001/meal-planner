@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import ScenarioSelector from '@/components/ScenarioSelector.vue'
 
 const router = useRouter()
 
@@ -46,10 +47,18 @@ function startPlanning() {
 
       <button
         @click="startPlanning"
-        class="px-8 py-4 bg-blue-600 text-white text-lg font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+        class="px-8 py-4 bg-blue-600 text-white text-lg font-semibold rounded-lg hover:bg-blue-700 transition-colors mb-8"
       >
-        식단 만들기 시작하기
+        직접 입력하기
       </button>
+
+      <div class="flex items-center gap-4 my-6">
+        <div class="flex-1 h-px bg-gray-300"></div>
+        <span class="text-gray-500 font-medium">또는</span>
+        <div class="flex-1 h-px bg-gray-300"></div>
+      </div>
+
+      <ScenarioSelector />
 
       <div class="mt-12 text-sm text-gray-500">
         <p>336,588개 한국 레시피 데이터베이스 기반</p>

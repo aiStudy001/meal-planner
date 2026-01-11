@@ -1,9 +1,11 @@
 import { ref, onUnmounted } from 'vue'
 import type { UserProfile, SSEEvent, MealPlan } from '@/types'
 import { useMealPlanStore } from '@/stores/mealPlan'
+import { useProfileStore } from '@/stores/profile'
 
 export function useSSE() {
   const mealPlanStore = useMealPlanStore()
+  const profileStore = useProfileStore()
   const eventSource = ref<EventSource | null>(null)
   const isConnected = ref(false)
 
@@ -12,16 +14,27 @@ export function useSSE() {
     mealPlanStore.clearMealPlan()
     mealPlanStore.startProcessing()
 
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+    // Use relative path for Docker/Nginx proxy (port 80 or default), or full URL for dev
+    const API_URL = import.meta.env.VITE_API_URL || (window.location.port === '' || window.location.port === '80' ? '' : 'http://localhost:8000')
 
     try {
+      // Transform UserProfile to match backend MealPlanRequest schema
+      const requestBody = {
+        ...profile,
+        // Combine allergies and dietary_preferences into restrictions
+        restrictions: [...profile.allergies, ...profile.dietary_preferences],
+      }
+      // Remove the original fields that were combined
+      delete (requestBody as any).allergies
+      delete (requestBody as any).dietary_preferences
+
       // For SSE, we need to POST the profile and get back a streaming response
       const response = await fetch(`${API_URL}/api/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(profile),
+        body: JSON.stringify(requestBody),
       })
 
       if (!response.ok) {
@@ -59,6 +72,23 @@ export function useSSE() {
         const { done, value } = await reader.read()
 
         if (done) {
+          // Process remaining buffer before closing
+          if (buffer.trim()) {
+            const lines = buffer.split('\n')
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const data = line.slice(6)
+                if (data !== '[DONE]') {
+                  try {
+                    const event: SSEEvent = JSON.parse(data)
+                    handleSSEEvent(event)
+                  } catch (error) {
+                    console.error('Failed to parse SSE event:', error, data)
+                  }
+                }
+              }
+            }
+          }
           break
         }
 
@@ -230,10 +260,10 @@ export function useSSE() {
       // Backend sends weekly_plan as array, construct MealPlan object
       const mealPlan: MealPlan = {
         days: data.meal_plan,
-        profile: {} as UserProfile,  // Will be populated from store if needed
-        total_budget: 0,  // Can be calculated from days if needed
+        profile: profileStore.profile,  // Get profile from store
+        total_budget: profileStore.profile.budget,  // Get budget from profile
         total_cost: data.meal_plan.reduce((sum: number, day: any) => sum + (day.total_cost || 0), 0),
-        avg_daily_nutrition: {} as any,  // Can be calculated if needed
+        avg_daily_nutrition: data.avg_daily_nutrition || {} as any,  // Use from backend if available
         created_at: new Date().toISOString(),
       }
       mealPlanStore.setMealPlan(mealPlan)

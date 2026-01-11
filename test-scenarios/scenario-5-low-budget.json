@@ -1,0 +1,27 @@
+{
+  "name": "저예산 (일일 1만원)",
+  "description": "22세 대학생, 제한적 예산 - 경제적이지만 영양가 있는 식단",
+  "profile": {
+    "gender": "male",
+    "age": 22,
+    "height": 178,
+    "weight": 68,
+    "goal": "유지",
+    "activity_level": "moderate",
+    "allergies": [],
+    "dietary_preferences": [],
+    "health_conditions": [],
+    "cooking_time": "15분 이내",
+    "skill_level": "초급",
+    "meals_per_day": 3,
+    "days": 3,
+    "budget": 30000,
+    "budget_type": "weekly",
+    "budget_distribution": "equal"
+  },
+  "expected": {
+    "daily_calories": "2000-2300 kcal",
+    "protein_target": "70-90g",
+    "validation_notes": "저가 단백질원(계란, 두부, 닭가슴살) 활용, 제철 채소 선호, 간단한 조리법"
+  }
+}
