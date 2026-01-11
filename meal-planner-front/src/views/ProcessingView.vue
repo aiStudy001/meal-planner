@@ -3,17 +3,22 @@ import { useMealPlanStore } from '@/stores/mealPlan'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePDFExport } from '@/composables/usePDFExport'
+import { useMealPlanStorage } from '@/composables/useMealPlanStorage'
 import ShoppingListModal from '@/components/ShoppingListModal.vue'
+import SavedPlansModal from '@/components/SavedPlansModal.vue'
+import MealCard from '@/components/MealCard.vue'
 
 const mealPlanStore = useMealPlanStore()
 const router = useRouter()
 const { exportToPDF } = usePDFExport()
+const { saveMealPlan } = useMealPlanStorage()
 
 const isComplete = computed(() => mealPlanStore.totalProgress >= 100)
 const hasError = computed(() => mealPlanStore.hasError)
 const errorMessage = computed(() => mealPlanStore.errorMessage)
 const showErrorBanner = ref(true)
 const showShoppingList = ref(false)
+const showSavedPlans = ref(false)
 
 function startOver() {
   mealPlanStore.clearMealPlan()
@@ -45,6 +50,16 @@ function exportToJSON() {
   link.download = `meal-plan-${new Date().toISOString().split('T')[0]}.json`
   link.click()
   URL.revokeObjectURL(url)
+}
+
+function handleSavePlan() {
+  if (!mealPlanStore.mealPlan) return
+  const success = saveMealPlan(mealPlanStore.mealPlan)
+  if (success) {
+    alert('✅ 식단이 저장되었습니다!')
+  } else {
+    alert('❌ 식단 저장에 실패했습니다.')
+  }
 }
 </script>
 
@@ -117,27 +132,20 @@ function exportToJSON() {
 
       <!-- Completed Meals by Day -->
       <div
-        v-for="day in Array.from(new Set(mealPlanStore.completedMeals.map(m => m.day))).sort((a, b) => a - b)"
-        :key="day"
+        v-for="day in mealPlanStore.mealPlan?.days || []"
+        :key="day.day"
         class="bg-white rounded-lg shadow-md p-6"
       >
-        <h3 class="text-xl font-bold mb-4">{{ day }}일차</h3>
-        <div class="space-y-4">
-          <div
-            v-for="meal in mealPlanStore.completedMeals.filter(m => m.day === day)"
-            :key="meal.meal_type"
-            class="border-l-4 border-blue-500 pl-4"
-          >
-            <div class="flex justify-between items-start">
-              <div>
-                <h4 class="font-semibold text-lg">{{ meal.meal_type }}: {{ meal.menu_name }}</h4>
-                <p class="text-gray-600 text-sm">
-                  {{ meal.calories }}kcal | {{ meal.cost.toLocaleString() }}원
-                </p>
-              </div>
-              <span class="text-green-600 text-xl">✅</span>
-            </div>
-          </div>
+        <h3 class="text-xl font-bold mb-4">{{ day.day }}일차</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <MealCard
+            v-for="meal in day.meals"
+            :key="`${day.day}-${meal.meal_type}`"
+            :meal="meal"
+            :day="day.day"
+            :meal-plan="mealPlanStore.mealPlan!"
+            :is-complete="isComplete"
+          />
         </div>
       </div>
 
@@ -148,19 +156,31 @@ function exportToJSON() {
             @click="() => exportToPDF(mealPlanStore.mealPlan!)"
             class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium flex items-center gap-2"
           >
-            📄 PDF 다운로드
+            📄 PDF
           </button>
-          <button
-            @click="exportToJSON"
-            class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center gap-2"
-          >
-            💾 JSON 다운로드
-          </button>
+<!--           <button -->
+<!--             @click="exportToJSON" -->
+<!--             class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center gap-2" -->
+<!--           > -->
+<!--             💾 JSON -->
+<!--           </button> -->
           <button
             @click="showShoppingList = true"
             class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium flex items-center gap-2"
           >
             🛒 장보기 리스트
+          </button>
+          <button
+            @click="handleSavePlan"
+            class="px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium flex items-center gap-2"
+          >
+            💾 식단 저장
+          </button>
+          <button
+            @click="showSavedPlans = true"
+            class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium flex items-center gap-2"
+          >
+            📂 저장된 식단
           </button>
         </div>
         <button
@@ -200,27 +220,22 @@ function exportToJSON() {
       </div>
 
       <!-- Completed Meals (진행 중) -->
-      <div v-if="mealPlanStore.completedMeals.length > 0" class="bg-white rounded-lg shadow-md p-6">
-        <h2 class="text-xl font-bold mb-4">완료된 식단</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div
-            v-for="(meal, index) in mealPlanStore.completedMeals"
-            :key="index"
-            class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
-          >
-            <div class="flex justify-between items-start mb-2">
-              <div class="flex items-center gap-2">
-                <span class="font-semibold text-gray-800">
-                  {{ meal.day }}일차 {{ meal.meal_type }}
-                </span>
-                <span class="text-green-600">✅</span>
-              </div>
-            </div>
-            <p class="text-lg font-medium text-gray-900 mb-2">{{ meal.menu_name }}</p>
-            <div class="flex gap-4 text-sm text-gray-600">
-              <span>{{ meal.calories }}kcal</span>
-              <span>{{ meal.cost.toLocaleString() }}원</span>
-            </div>
+      <div v-if="mealPlanStore.mealPlan?.days.length > 0" class="space-y-6">
+        <div
+          v-for="day in mealPlanStore.mealPlan.days"
+          :key="day.day"
+          class="bg-white rounded-lg shadow-md p-6"
+        >
+          <h3 class="text-xl font-bold mb-4">{{ day.day }}일차</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <MealCard
+              v-for="meal in day.meals"
+              :key="`${day.day}-${meal.meal_type}`"
+              :meal="meal"
+              :day="day.day"
+              :meal-plan="mealPlanStore.mealPlan"
+              :is-complete="false"
+            />
           </div>
         </div>
       </div>
@@ -232,6 +247,12 @@ function exportToJSON() {
       :meal-plan="mealPlanStore.mealPlan"
       :show="showShoppingList"
       @close="showShoppingList = false"
+    />
+
+    <!-- Saved Plans Modal -->
+    <SavedPlansModal
+      :show="showSavedPlans"
+      @close="showSavedPlans = false"
     />
   </div>
 </template>

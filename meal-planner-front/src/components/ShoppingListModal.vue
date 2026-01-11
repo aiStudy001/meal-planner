@@ -42,7 +42,7 @@ function closeModal() {
     <div v-if="show" class="fixed inset-0 z-50 overflow-y-auto">
       <!-- Overlay -->
       <div
-        class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+        class="fixed inset-0 bg-black/50 transition-opacity"
         @click="closeModal"
       ></div>
 

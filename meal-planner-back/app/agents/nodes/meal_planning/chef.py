@@ -71,6 +71,19 @@ async def chef_agent(state: MealPlanState) -> dict:
         except Exception as e:
             logger.warning("recipe_search_failed", error=str(e))
 
+    # 중복 방지: 이미 완료된 메뉴 목록 추출
+    completed_meals = state.get("completed_meals", [])
+    recently_used_recipes = [meal.menu_name for meal in completed_meals[-5:]] if completed_meals else []
+
+    # 중복 방지 섹션 생성
+    duplicate_prevention = ""
+    if recently_used_recipes:
+        duplicate_prevention = f"""
+## ⚠️ 중복 방지
+최근 사용된 메뉴: {', '.join(recently_used_recipes)}
+**중요**: 위 메뉴들과 완전히 다른 새로운 메뉴를 추천해주세요. 주재료와 조리법을 다르게 해주세요.
+"""
+
     prompt = f"""당신은 전문 셰프입니다.
 
 다음 조건에 맞는 {state["current_meal_type"]} 메뉴 1개를 추천해주세요.
@@ -79,7 +92,7 @@ async def chef_agent(state: MealPlanState) -> dict:
 - 조리 시간: {time_limit}분 이내
 - 요리 실력: {profile.skill_level}
 - 제외 재료: {', '.join(escape_for_llm(r) for r in profile.restrictions) if profile.restrictions else '없음'}
-
+{duplicate_prevention}
 ## 영양 목표 (참고)
 - 칼로리: {targets.calories:.0f}kcal
 - 단백질: {targets.protein_g:.0f}g

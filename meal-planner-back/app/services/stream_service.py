@@ -315,3 +315,208 @@ def serialize_weekly_plan(weekly_plan: list) -> list:
         }
         for day_plan in weekly_plan
     ]
+
+
+async def stream_meal_regeneration(
+    initial_state: MealPlanState
+) -> AsyncGenerator[str, None]:
+    """
+    특정 끼니 재생성을 SSE로 스트리밍
+
+    Args:
+        initial_state: 재생성용 초기 상태 (regeneration_service에서 생성)
+
+    Yields:
+        SSE 형식 문자열 ("data: {json}\n\n")
+    """
+    try:
+        logger.info(
+            "meal_regeneration_started",
+            target_day=initial_state.get("current_day"),
+            target_meal_type=initial_state.get("current_meal_type")
+        )
+
+        # 1. Recursion limit 계산 (단일 끼니이므로 작게)
+        # 1개 끼니 * 약 11개 노드 = 11
+        estimated_nodes = 15  # 여유 있게
+        recursion_limit = 20
+        config = {"recursion_limit": recursion_limit}
+
+        logger.info(
+            "regeneration_recursion_limit_set",
+            recursion_limit=recursion_limit
+        )
+
+        # 2. Graph 가져오기 (meal_planning_subgraph 사용)
+        from app.agents.graphs.meal_planning_subgraph import get_meal_planning_subgraph
+        subgraph = get_meal_planning_subgraph()
+
+        # 3. 그래프 실행 - 이벤트 스트리밍
+        event_count = 0
+        partial_events_sent = 0
+        final_state = None
+
+        async for chunk in subgraph.astream(initial_state, config=config):
+            event_count += 1
+            final_state = chunk
+
+            try:
+                # Chunk에서 events 추출
+                for node_name, node_state in chunk.items():
+                    if isinstance(node_state, dict) and "events" in node_state:
+                        for event in node_state["events"]:
+                            # Node 이벤트 → SSE 이벤트 변환
+                            sse_event = transform_regeneration_event(event, node_name)
+                            yield format_sse(sse_event)
+                            partial_events_sent += 1
+
+                logger.debug(
+                    "regeneration_stream_event",
+                    event_number=event_count,
+                    chunk_keys=list(chunk.keys())
+                )
+
+            except Exception as chunk_error:
+                logger.warning(
+                    "regeneration_stream_chunk_error",
+                    event_number=event_count,
+                    error=str(chunk_error)
+                )
+                error_event = {
+                    "type": "warning",
+                    "data": {
+                        "message": f"일부 이벤트 처리 중 오류 발생 (chunk {event_count})",
+                        "code": "CHUNK_ERROR"
+                    }
+                }
+                yield format_sse(error_event)
+
+        # 4. Extract regenerated meal from final state
+        regenerated_meal = None
+        if final_state:
+            for node_name, node_state in final_state.items():
+                if isinstance(node_state, dict):
+                    # First try completed_meals (if validation+day_iterator were included)
+                    completed = node_state.get("completed_meals", [])
+                    if completed:
+                        regenerated_meal = completed[-1]  # 마지막 완료 메뉴
+                        break
+
+                    # If not in completed_meals, try current_menu directly
+                    # (meal_planning_subgraph ends at conflict_resolver which sets current_menu)
+                    current_menu = node_state.get("current_menu")
+                    if current_menu:
+                        regenerated_meal = current_menu
+                        break
+
+        # 5. 완료 이벤트 전송
+        if regenerated_meal:
+            completion_event = {
+                "type": "meal_regenerate_complete",
+                "data": {
+                    "day": initial_state.get("current_day"),
+                    "meal_type": initial_state.get("current_meal_type"),
+                    "meal": serialize_single_menu(regenerated_meal)
+                }
+            }
+            yield format_sse(completion_event)
+
+            logger.info(
+                "meal_regeneration_completed",
+                day=initial_state.get("current_day"),
+                meal_type=initial_state.get("current_meal_type"),
+                menu_name=regenerated_meal.menu_name,
+                total_events=event_count
+            )
+        else:
+            # 재생성 실패
+            error_event = {
+                "type": "error",
+                "data": {
+                    "message": "끼니 재생성에 실패했습니다.",
+                    "code": "REGENERATION_FAILED"
+                }
+            }
+            yield format_sse(error_event)
+
+            logger.error(
+                "meal_regeneration_failed",
+                day=initial_state.get("current_day"),
+                meal_type=initial_state.get("current_meal_type")
+            )
+
+    except asyncio.CancelledError:
+        logger.warning(
+            "regeneration_stream_client_disconnected",
+            event_count=event_count if 'event_count' in locals() else 0
+        )
+        raise
+
+    except Exception as e:
+        logger.error(
+            "regeneration_stream_error",
+            error=str(e),
+            exc_info=True
+        )
+        error_event = {
+            "type": "error",
+            "data": {
+                "message": str(e),
+                "code": "REGENERATION_ERROR"
+            }
+        }
+        yield format_sse(error_event)
+
+
+def transform_regeneration_event(event: dict, node_name: str) -> dict:
+    """
+    재생성 이벤트를 SSE 이벤트로 변환
+
+    Args:
+        event: 노드 이벤트
+        node_name: 노드 이름
+
+    Returns:
+        SSE 이벤트 딕셔너리
+    """
+    # 기본적으로 동일한 transform_event 사용
+    # 다만 "meal_complete" 타입을 "meal_regenerate_progress"로 변경
+    sse_event = transform_event(event, node_name)
+
+    # meal_complete → meal_regenerate_progress 변경
+    if sse_event.get("type") == "meal_complete":
+        sse_event["type"] = "meal_regenerate_progress"
+
+    return sse_event
+
+
+def serialize_single_menu(menu) -> dict:
+    """
+    단일 메뉴를 JSON 직렬화 가능한 형태로 변환
+
+    Args:
+        menu: Menu 객체
+
+    Returns:
+        직렬화된 메뉴
+    """
+    return {
+        "meal_type": menu.meal_type,
+        "recipe": {
+            "name": menu.menu_name,
+            "ingredients": menu.ingredients,
+            "instructions": menu.recipe_steps,
+            "cooking_time_min": menu.cooking_time_minutes,
+            "difficulty": "보통",
+            "estimated_cost": menu.estimated_cost,
+            "nutrition": {
+                "calories_kcal": menu.calories,
+                "protein_g": menu.protein_g,
+                "carbs_g": menu.carb_g,
+                "fat_g": menu.fat_g,
+                "sodium_mg": menu.sodium_mg,
+            },
+            "source": menu.recipe_url if hasattr(menu, 'recipe_url') else None,
+        },
+        "budget_allocated": menu.estimated_cost,
+    }

@@ -40,7 +40,7 @@ defineExpose({ isValid })
         :value="profile.budget"
         @input="profileStore.updateProfile({ budget: Number(($event.target as HTMLInputElement).value) })"
         class="w-full px-4 py-3 border border-gray-300 rounded-lg text-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        placeholder="100000"
+        placeholder="300000"
         min="10000"
         max="1000000"
         step="10000"

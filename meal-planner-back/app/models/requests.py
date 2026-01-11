@@ -7,6 +7,7 @@ MealPlanRequest는 meal-planner-info.md 섹션 7.2의 명세를 따름
 from pydantic import BaseModel, Field, field_validator, model_validator
 from typing import Literal, List, Optional
 from app.utils.prompt_safety import sanitize_string_list
+from app.models.state import UserProfile
 
 
 class MealPlanRequest(BaseModel):
@@ -120,5 +121,91 @@ class MealPlanRequest(BaseModel):
                 "skill_level": "중급",
                 "meals_per_day": 3,
                 "days": 7,
+            }
+        }
+
+
+class RegenerateMealRequest(BaseModel):
+    """특정 끼니 재생성 요청 모델"""
+
+    # 사용자 프로필 (전체 컨텍스트)
+    profile: UserProfile
+
+    # 재생성 대상
+    target_day: int = Field(ge=1, le=7, description="재생성할 일자 (1-7)")
+    target_meal_type: Literal["아침", "점심", "저녁", "간식"] = Field(
+        description="재생성할 끼니 타입"
+    )
+
+    # 영양 및 예산 목표
+    daily_nutrition_targets: dict = Field(
+        description="일일 영양 목표 (calories, carb_g, protein_g, fat_g)"
+    )
+    per_meal_budget: int = Field(
+        gt=0, description="이 끼니에 할당된 예산 (원)"
+    )
+
+    # 기존 식단 컨텍스트 (다른 끼니들)
+    completed_meals_context: List[dict] = Field(
+        default_factory=list,
+        description="이미 생성된 다른 끼니 정보 (영양 균형 유지용)"
+    )
+
+    # 중복 방지 및 다양성
+    recently_used_recipes: List[str] = Field(
+        default_factory=list,
+        description="최근 사용된 레시피 이름 목록 (중복 방지)"
+    )
+    used_ingredients: List[str] = Field(
+        default_factory=list,
+        description="최근 사용된 주재료 목록 (다양성 확보)"
+    )
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "profile": {
+                    "goal": "다이어트",
+                    "weight": 70,
+                    "height": 175,
+                    "age": 30,
+                    "gender": "male",
+                    "activity_level": "moderate",
+                    "restrictions": [],
+                    "health_conditions": [],
+                    "budget": 100000,
+                    "budget_type": "weekly",
+                    "budget_distribution": "equal",
+                    "cooking_time": "30분 이내",
+                    "skill_level": "중급",
+                    "meals_per_day": 3,
+                    "days": 3
+                },
+                "target_day": 2,
+                "target_meal_type": "아침",
+                "daily_nutrition_targets": {
+                    "calories": 1800,
+                    "carb_g": 225,
+                    "protein_g": 135,
+                    "fat_g": 40
+                },
+                "per_meal_budget": 7000,
+                "completed_meals_context": [
+                    {
+                        "day": 1,
+                        "meal_type": "아침",
+                        "menu_name": "닭가슴살 샐러드",
+                        "calories": 500
+                    }
+                ],
+                "recently_used_recipes": [
+                    "닭가슴살 샐러드",
+                    "연어 구이"
+                ],
+                "used_ingredients": [
+                    "닭가슴살",
+                    "연어",
+                    "토마토"
+                ]
             }
         }

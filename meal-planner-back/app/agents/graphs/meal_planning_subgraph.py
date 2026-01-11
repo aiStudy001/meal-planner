@@ -47,3 +47,15 @@ def create_meal_planning_subgraph() -> StateGraph:
     subgraph.add_edge("conflict_resolver", END)
 
     return subgraph
+
+
+# 싱글톤 인스턴스
+_subgraph_instance = None
+
+
+def get_meal_planning_subgraph():
+    """Meal Planning Subgraph 싱글톤 인스턴스 반환"""
+    global _subgraph_instance
+    if _subgraph_instance is None:
+        _subgraph_instance = create_meal_planning_subgraph().compile()
+    return _subgraph_instance

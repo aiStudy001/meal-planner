@@ -1,0 +1,47 @@
+{
+  "연어 필렛": {
+    "price_per_gram": 0.02,
+    "source_url": "https://www.megamart.com/product/13985424",
+    "search_date": "2026-01-11"
+  },
+  "브로콜리": {
+    "price_per_gram": 6.65,
+    "source_url": "https://emile.emarteveryday.co.kr/product/ProductView?skuCode=2500000039584",
+    "search_date": "2026-01-11"
+  },
+  "당근": {
+    "price_per_gram": 25.9,
+    "source_url": "https://lottemartzetta.com/products/OS8809928400105/details",
+    "search_date": "2026-01-11"
+  },
+  "올리브유": {
+    "price_per_gram": 3.62,
+    "source_url": "https://emart.ssg.com/search.ssg?query=%EB%B2%84%EC%A7%84%EC%98%AC%EB%A6%AC%EB%B8%8C%EC%9C%A0",
+    "search_date": "2026-01-11"
+  },
+  "레몬": {
+    "price_per_gram": 0.02,
+    "source_url": "https://www.megamart.com/product/13297404",
+    "search_date": "2026-01-11"
+  },
+  "소금": {
+    "price_per_gram": 2.51,
+    "source_url": "https://search.11st.co.kr/MW/search?searchKeyword=%EC%86%8C%EA%B8%88&tabId=MART",
+    "search_date": "2026-01-11"
+  },
+  "검은 후춧가루": {
+    "price_per_gram": 49.9,
+    "source_url": "https://lottemartzetta.com/products?sublocationId=aa55898a-1888-4fff-af64-2c82c5b99e73",
+    "search_date": "2026-01-11"
+  },
+  "마늘": {
+    "price_per_gram": 0.02,
+    "source_url": "https://www.kurly.com/recommendation/%EB%A7%88%EB%8A%98",
+    "search_date": "2026-01-11"
+  },
+  "흰쌀밥": {
+    "price_per_gram": 6.1,
+    "source_url": "https://emart.ssg.com/search.ssg?query=%EC%8C%80%EB%B0%A5",
+    "search_date": "2026-01-11"
+  }
+}

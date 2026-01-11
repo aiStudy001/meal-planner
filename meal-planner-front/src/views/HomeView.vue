@@ -10,7 +10,7 @@ function startPlanning() {
 </script>
 
 <template>
-  <div class="flex flex-col items-center justify-center min-h-screen px-4">
+  <div class="flex flex-col items-center justify-center min-h-screen px-4 py-20">
     <div class="max-w-4xl w-full text-center">
       <h1 class="text-5xl font-bold text-gray-900 mb-4">
         🍽️ AI 맞춤 식단 플래너

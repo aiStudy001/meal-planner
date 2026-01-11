@@ -52,11 +52,6 @@
     - 목표: 체중 감량
     - 제약: ADA/WHO 가이드라인 준수
     - 예산: 일일 20,000원
-
-  시나리오 5: 저예산 (1일 10,000원 이하)
-    - 목표: 체중 유지
-    - 제약: 예산 최우선, 조리 실력 중급
-    - 예산: 일일 10,000원
   ```
 
 - **각 시나리오별 예상 결과**
@@ -355,7 +350,28 @@ open http://localhost:3000
 - [x] Quick Start 버튼 (샘플 데이터) (0.5일) → 시나리오 선택 드롭다운으로 구현
 - [x] Docker 환경 테스트 완료 (Playwright 검증)
 - [x] CORS 이슈 해결 (window.location.port 감지)
-- [ ] 최종 문서화 (진행 중)
+- [x] 최종 문서화 완료
+
+### **Phase 7 (추가 구현)** - 식단 개선 기능 ✅
+- [x] 특정 끼니 재생성 기능
+  - useRegenerateMeal.ts composable
+  - POST /api/regenerate-meal 엔드포인트
+  - SSE 스트리밍 (meal_regenerate_progress, validation, meal_regenerate_complete)
+  - MealCard.vue에 "🔄 다시 생성" 버튼
+- [x] 대체 레시피 제안 기능
+  - useAlternativeRecipes.ts composable
+  - GET /api/alternative-recipes 엔드포인트
+  - AlternativesModal.vue 컴포넌트
+  - MealCard.vue에 "🔀 비슷한 레시피" 버튼
+- [x] LocalStorage 저장/불러오기
+  - useMealPlanStorage.ts composable
+  - SavedPlansModal.vue 컴포넌트
+  - ProcessingView.vue에 "💾 식단 저장", "📂 저장된 식단" 버튼
+  - 최대 5개 식단 저장 (FIFO)
+- [x] Playwright E2E 테스트 완료
+  - 끼니 재생성 테스트 (Day 1 아침 변경 성공)
+  - 대체 레시피 모달 테스트 (빈 상태 처리 확인)
+  - 식단 저장/불러오기 테스트 (2개 저장 확인)
 
 ---
 
@@ -367,6 +383,10 @@ open http://localhost:3000
 - [x] PDF 내보내기 기능 (usePDFExport.ts - jsPDF + jspdf-autotable)
 - [x] JSON/장보기 리스트 기능 (useShoppingList.ts + ShoppingListModal.vue)
 - [x] Quick Start 샘플 데이터 (시나리오 선택 드롭다운 - 4개 시나리오)
+- [x] **Phase 7 식단 개선 기능**
+  - [x] 특정 끼니 재생성 (useRegenerateMeal.ts, MealCard.vue)
+  - [x] 대체 레시피 제안 (useAlternativeRecipes.ts, AlternativesModal.vue)
+  - [x] LocalStorage 저장/불러오기 (useMealPlanStorage.ts, SavedPlansModal.vue)
 
 ### 2. 문서
 - [x] `IMPROVEMENT_PLAN.md` (본 문서 - 진행 상황 업데이트)
@@ -429,20 +449,25 @@ open http://localhost:3000
 - [x] 장보기 리스트 (재료 집계 + 카테고리 분류)
 - [x] Quick Start 시나리오 선택 드롭다운 (4개 시나리오)
 
-### 권장 (MEDIUM) - 미구현
+### 권장 (MEDIUM) - 50% 완료
 - [ ] 영양 분석 차트 (시간 부족)
-- [ ] 특정 끼니 재생성 (추후 구현)
+- [x] 특정 끼니 재생성 (2026-01-11 완료 - useRegenerateMeal.ts, SSE 스트리밍)
+- [x] 대체 식단 제안 (2026-01-11 완료 - useAlternativeRecipes.ts, AlternativesModal.vue)
 - [ ] 에러 메시지 한글화 (대부분 한글화됨)
 - [ ] 데모 GIF (선택 사항)
 
-### 선택 (LOW) - 미구현
+### 선택 (LOW) - 33% 완료
 - [ ] 비디오 데모 (시간 부족)
-- [ ] 로컬 저장/불러오기 (추후 구현)
+- [x] 로컬 저장/불러오기 (2026-01-11 완료 - useMealPlanStorage.ts, SavedPlansModal.vue)
 - [ ] 다국어 지원 (추후 구현)
 
 ---
 
-**마지막 업데이트**: 2026-01-11 (문서화 완료)
+**마지막 업데이트**: 2026-01-11 (Phase 7 식단 개선 기능 완료)
 **담당자**: AI Study 팀
 **목표 제출일**: 2026-01-11 23:59
-**완료 상황**: 코드 100% + 문서 100% = **전체 완료** ✅🎉
+**완료 상황**:
+- 필수 기능 (HIGH Priority): 100% ✅
+- 권장 기능 (MEDIUM Priority): 50% ✅ (특정 끼니 재생성, 대체 레시피, LocalStorage)
+- 선택 기능 (LOW Priority): 33% ✅ (LocalStorage 저장/불러오기)
+- **전체 완료** ✅🎉

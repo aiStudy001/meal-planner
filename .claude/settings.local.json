@@ -92,7 +92,26 @@
       "Bash(cmd //c \"netstat -ano | findstr LISTENING | findstr 8000\")",
       "Bash(cmd //c \"for /f \"\"tokens=5\"\" %a in \\(''netstat -ano ^| findstr :8000 ^| findstr LISTENING''\\) do @taskkill /F /PID %a\")",
       "Bash(timeout /t 30 /nobreak)",
-      "mcp__playwright__browser_handle_dialog"
+      "mcp__playwright__browser_handle_dialog",
+      "mcp__serena__list_dir",
+      "Bash(timeout /t 5 /nobreak)",
+      "Bash(wmic:*)",
+      "mcp__desktop-commander__list_processes",
+      "mcp__desktop-commander__kill_process",
+      "Bash(..venvScriptspython.exe -c \"from app.controllers import meal_plan; routes = [r.path for r in meal_plan.router.routes]; print\\(''\\\\n''.join\\(routes\\)\\)\")",
+      "Bash(Get-Process)",
+      "Bash(Where-Object {$_ProcessName -like \"*node*\"})",
+      "Bash(Select-Object Id, ProcessName, Path)",
+      "mcp__playwright__browser_press_key",
+      "mcp__serena__find_file",
+      "Bash(npx playwright install:*)",
+      "Bash(where:*)",
+      "Bash(.venvScriptspython.exe --version)",
+      "Bash(.venvScriptspython.exe -c \"import sys; print\\(sys.executable\\)\")",
+      "Bash(.venvScriptspython.exe -c \"import tavily; print\\(''tavily installed:'', tavily.__version__\\)\")",
+      "mcp__playwright__browser_type",
+      "Bash(.venvScriptspython.exe -c \"from app.services.csv_recipe_search_service import get_csv_recipe_service; service = get_csv_recipe_service\\(\\); print\\(f''Total recipes: {len\\(service.recipes_df\\)}''\\)\")",
+      "Bash(timeout:*)"
     ]
   }
 }
