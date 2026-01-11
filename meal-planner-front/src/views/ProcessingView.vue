@@ -152,12 +152,12 @@ function handleSavePlan() {
       <!-- Actions -->
       <div class="flex flex-col items-center gap-4 pt-4">
         <div class="flex flex-wrap justify-center gap-3">
-          <button
-            @click="() => exportToPDF(mealPlanStore.mealPlan!)"
-            class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium flex items-center gap-2"
-          >
-            📄 PDF
-          </button>
+<!--           <button -->
+<!--             @click="() => exportToPDF(mealPlanStore.mealPlan!)" -->
+<!--             class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium flex items-center gap-2" -->
+<!--           > -->
+<!--             📄 PDF -->
+<!--           </button> -->
 <!--           <button -->
 <!--             @click="exportToJSON" -->
 <!--             class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center gap-2" -->
