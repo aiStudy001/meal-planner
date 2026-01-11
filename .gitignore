@@ -85,3 +85,5 @@ logs
 /.playwright-mcp
 /meal-planner-data
 *.pem
+meal-planner-back/.env.production
+meal-planner-front/.env.production
