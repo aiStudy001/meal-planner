@@ -37,8 +37,9 @@ env/
 .env.local
 
 # Data files
-data/*.csv
-data/recipes_with_nutrition.csv
+# CSV files are tracked with Git LFS
+# data/*.csv
+# data/recipes_with_nutrition.csv
 
 # Logs
 *.log
